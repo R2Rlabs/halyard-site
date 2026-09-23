@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halyard — learn to trade before you risk real money</title>
+<meta name="description" content="A perpetual futures exchange for BTC and ETH on Trac Network, with lessons and free practice before anyone can deposit. A product by r2rlabs.">
+<meta property="og:title" content="Halyard — learn to trade before you risk real money">
+<meta property="og:description" content="Perpetual futures on Trac Network. Learn and practice free first. 5× maximum leverage. A product by r2rlabs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://halyard.r2rlabs.com/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#0B0E13; --panel:#12161D; --panel2:#161B23; --border:#242B35;
+  --text:#E7EAEE; --muted:#98A2B0; --soft:#A9B2BF;
+  --amber:#F0A63A; --green:#34C77B; --red:#F2555A;
+  --maxw:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:10;background:rgba(11,14,19,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;gap:20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.nav-links{margin-left:auto;display:flex;gap:18px;font-size:14px}
+.nav-links a{color:var(--muted);text-decoration:none}
+.nav-links a:hover{color:var(--text)}
+@media(max-width:640px){.nav-links{display:none}}
+section{padding:72px 0;border-bottom:1px solid var(--border)}
+h1{font-size:clamp(34px,5.4vw,60px);line-height:1.08;font-weight:600;margin:0 0 20px}
+h2{font-size:clamp(24px,3.4vw,34px);line-height:1.15;font-weight:600;margin:0 0 12px}
+h3{font-size:18px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 16px;color:var(--soft)}
+.lead{font-size:clamp(17px,2.2vw,21px);max-width:44rem}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:780px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.btn{display:inline-block;padding:13px 22px;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:600;font-size:15px;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn:hover{filter:brightness(1.06)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stat{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:30px;font-weight:600}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.list{margin:0;padding-left:20px;color:var(--soft);font-size:15px}
+.list li{margin-bottom:8px}
+form{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+input[type=email]{flex:1;min-width:240px;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-family:inherit;font-size:15px}
+input[type=email]:focus{outline:2px solid var(--amber);outline-offset:1px}
+.formnote{font-size:13px;color:var(--muted);margin-top:10px}
+.warn{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:18px 20px}
+.warn p{margin:0;font-size:14px;color:var(--muted)}
+footer{padding:40px 0 64px;color:var(--muted);font-size:14px}
+footer a{color:var(--muted)}
+.foot-row{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+      Halyard
+    </a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#safety">Safety</a>
+      <a href="#trust">Trust</a>
+      <a href="#fund">Insurance fund</a>
+      <a href="#waitlist">Waitlist</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section>
+  <div class="wrap">
+    <span class="pill">In development · not live yet</span>
+    <h1 style="margin-top:18px">Learn to trade before you risk real money</h1>
+    <p class="lead">Halyard is a perpetual futures exchange for BTC and ETH, built on Trac Network, using USDT from TAP Protocol as collateral. Every price is checked on-chain, leverage stops at 5×, and nobody can deposit until they've shown they understand how a position gets liquidated.</p>
+    <div class="row" style="margin-top:26px">
+      <a class="btn" href="#waitlist">Join the waitlist</a>
+      <a class="btn ghost" href="#how">See how it works</a>
+    </div>
+    <p class="small" style="margin-top:22px">A product by r2rlabs. Not available to users in the United States.</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2>Learn, practice, then trade</h2>
+    <p class="lead">Nothing here needs a deposit until you want one.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card">
+        <h3>1. Learn</h3>
+        <p>Six short lessons covering leverage, liquidation, funding and stop-losses. About fifteen minutes, free, no account needed.</p>
+      </div>
+      <div class="card">
+        <h3>2. Practice</h3>
+        <p>10,000 play USDT at real prices, on the same screen as real trading. It runs on your own device, so it costs nothing and risks nothing.</p>
+      </div>
+      <div class="card">
+        <h3>3. Trade</h3>
+        <p>Pass a ten-question experience check, then deposit. Score 9 or 10 and you trade straight away; otherwise the lessons come first.</p>
+      </div>
+    </div>
+    <div class="warn" style="margin-top:22px">
+      <p><strong style="color:var(--text)">Halyard is not a spot market.</strong> You never own BTC here. Every position is a contract matched against another trader, and when you win, they lose. That is why we make people practice first.</p>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <div class="eyebrow">Safety rules</div>
+    <h2>Limits that stay on, even when they cost us volume</h2>
+    <div class="grid g2" style="margin-top:26px">
+      <div class="card"><h3>5× maximum leverage</h3><p>For everyone. Most exchanges offer 50× or more, which is how small accounts disappear in an afternoon.</p></div>
+      <div class="card"><h3>An experience check before the first deposit</h3><p>Ten questions, for every new account. Experienced traders pass in a few minutes.</p></div>
+      <div class="card"><h3>Beginner limits for 14 days</h3><p>Maximum 2× leverage and at most 1,000 USDT deposited in total while you find your feet.</p></div>
+      <div class="card"><h3>Practice first, always free</h3><p>Lessons, five practice trades, a stop-loss and a practice liquidation before real money is possible.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="trust">
+  <div class="wrap">
+    <div class="eyebrow">Why you can trust r2rlabs</div>
+    <h2>rugged2rich means our users don't get rugged</h2>
+    <p class="lead">These are commitments we are building in and will publish. The first one already works in our proof of concept.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><h3>No one can set a price</h3><p>Prices come signed from Pyth and every node checks the signatures before a trade fills. We cannot move a price, and neither can anyone else.</p></div>
+      <div class="card"><h3>No key can take your money</h3><p>Deposits are held by the contract, not by us. No admin key moves user funds.</p></div>
+      <div class="card"><h3>Upgrades wait seven days</h3><p>Every change is announced before it takes effect, so you can leave first if you disagree with it.</p></div>
+      <div class="card"><h3>Open code and audits</h3><p>The code will be published and audited before it holds real money. Report a flaw to <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>.</p></div>
+      <div class="card"><h3>No promised returns</h3><p>Not for traders, not for backers. Anyone promising you a yield on leveraged trading is selling something.</p></div>
+      <div class="card"><h3>Everything disclosed</h3><p>Paid posts and partnerships are labelled. Fees are listed in full, with no hidden spread.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="fund">
+  <div class="wrap">
+    <div class="eyebrow">The insurance fund</div>
+    <h2>No liquidity pool. Traders are matched against each other</h2>
+    <p class="lead">Every long is matched with a short. The insurance fund covers the two moments that breaks: when one side is missing, and when a crash jumps past a liquidation price.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="stat">$5,000</div><p style="margin-top:6px">Community backing needed before beta trading opens.</p></div>
+      <div class="card"><div class="stat">50%</div><p style="margin-top:6px">Share of trading fees that goes to the backers who fund it.</p></div>
+      <div class="card"><div class="stat">First loss</div><p style="margin-top:6px">Backers absorb losses before any trader does, with no promised return and seven days' withdrawal notice.</p></div>
+    </div>
+    <p class="small" style="margin-top:18px">Backing the fund is putting money at risk. Questions before you consider it: <a href="mailto:backers@r2rlabs.com">backers@r2rlabs.com</a>.</p>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap">
+    <div class="eyebrow">What's built</div>
+    <h2>The price check already works</h2>
+    <p class="lead">We built the riskiest piece first: a Trac contract that verifies Pyth's signatures itself, tested against real price updates.</p>
+    <div class="grid g3" style="margin-top:26px">
+      <div class="card"><div class="stat">~5 ms</div><p style="margin-top:6px">To verify a signed price inside a Trac contract.</p></div>
+      <div class="card"><div class="stat">78</div><p style="margin-top:6px">Automated tests passing against real Pyth updates.</p></div>
+      <div class="card"><div class="stat">0</div><p style="margin-top:6px">Forged, tampered or replayed prices accepted in testing.</p></div>
+    </div>
+    <p class="small" style="margin-top:18px">Proof of concept, not yet audited. The code will be published alongside the audit.</p>
+  </div>
+</section>
+
+<section id="waitlist">
+  <div class="wrap">
+    <div class="eyebrow">Waitlist</div>
+    <h2>Be there when practice mode opens</h2>
+    <p class="lead">Practice mode comes first, free and with no deposit. We'll email when it's ready, and again before real trading opens. Nothing else.</p>
+    <form id="waitlist-form" method="post" action="">
+      <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required>
+      <button class="btn" type="submit">Join the waitlist</button>
+    </form>
+    <p class="formnote" id="formnote">We store your address to send these two emails and nothing else. Unsubscribe any time. Not open to users in the United States.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 50 H22 V38 H34 V26 H46 V14 H58" fill="none" stroke="#E7EAEE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 50 H22" stroke="#F0A63A" stroke-width="5" stroke-linecap="round"/></svg>
+      <span style="color:var(--text)"><strong>r2r</strong>labs</span>
+      <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>
+      <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>
+    </div>
+    <p class="small">Halyard is in development and is not live. Perpetual futures are leveraged products: you can lose everything you put in, quickly. Nothing here is investment advice, and nothing here is an offer to anyone in the United States. Simulated figures are simulations, not forecasts or promises.</p>
+    <p class="small">© <span id="year">2026</span> r2rlabs</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// Waitlist. Set ENDPOINT to a form service (Formspree, Tally, Buttondown, your own handler).
+// Until it is set, the form falls back to an email so no address is ever silently lost.
+var ENDPOINT = '';
+var form = document.getElementById('waitlist-form');
+var note = document.getElementById('formnote');
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  var email = form.email.value.trim();
+  if (!email) return;
+  if (!ENDPOINT) {
+    window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' + encodeURIComponent('Please add ' + email + ' to the Halyard waitlist.');
+    note.textContent = 'Opening your email app. Send the message and you are on the list.';
+    return;
+  }
+  fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email: email })
+  }).then(function (r) {
+    if (!r.ok) throw new Error('bad status');
+    form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You\'re on the list. We\'ll email when practice mode opens.</p>';
+    note.textContent = 'No other email, and no sharing your address.';
+  }).catch(function () {
+    note.textContent = 'That did not go through. Email hello@r2rlabs.com and we will add you by hand.';
+  });
+});
+</script>
+</body>
+</html>
