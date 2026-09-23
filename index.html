@@ -58,6 +58,8 @@ form{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 input[type=email]{flex:1;min-width:240px;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-family:inherit;font-size:15px}
 input[type=email]:focus{outline:2px solid var(--amber);outline-offset:1px}
 .formnote{font-size:13px;color:var(--muted);margin-top:10px}
+.consent{flex-basis:100%;display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--muted);margin-top:2px}
+.consent input{margin-top:3px;accent-color:var(--amber)}
 .warn{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:18px 20px}
 .warn p{margin:0;font-size:14px;color:var(--muted)}
 footer{padding:40px 0 64px;color:var(--muted);font-size:14px}
@@ -187,10 +189,12 @@ footer a{color:var(--muted)}
     <h2>Be there when practice mode opens</h2>
     <p class="lead">Practice mode comes first, free and with no deposit. We'll email when it's ready, and again before real trading opens. Nothing else.</p>
     <form id="waitlist-form" method="post" action="">
-      <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required>
+      <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required autocomplete="email">
       <button class="btn" type="submit">Join the waitlist</button>
+      <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+      <label class="consent"><input type="checkbox" name="not_us" required> I am not in the United States, and I want these emails.</label>
     </form>
-    <p class="formnote" id="formnote">We store your address to send these two emails and nothing else. Unsubscribe any time. Not open to users in the United States.</p>
+    <p class="formnote" id="formnote">We store your address to send those two emails and nothing else. Unsubscribe any time. See the <a href="privacy.html">privacy page</a> for who stores it.</p>
   </div>
 </section>
 
@@ -203,6 +207,7 @@ footer a{color:var(--muted)}
       <span style="color:var(--text)"><strong>r2r</strong>labs</span>
       <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>
       <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>
+      <a href="privacy.html">Privacy</a>
     </div>
     <p class="small">Halyard is in development and is not live. Perpetual futures are leveraged products: you can lose everything you put in, quickly. Nothing here is investment advice, and nothing here is an offer to anyone in the United States. Simulated figures are simulations, not forecasts or promises.</p>
     <p class="small">© <span id="year">2026</span> r2rlabs</p>
@@ -212,30 +217,56 @@ footer a{color:var(--muted)}
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Waitlist. Set ENDPOINT to a form service (Formspree, Tally, Buttondown, your own handler).
-// Until it is set, the form falls back to an email so no address is ever silently lost.
+// Waitlist.
+//
+// ENDPOINT takes a URL that accepts a JSON POST of {email, source}. Formspree gives you one at
+// https://formspree.io/f/XXXXXXXX; Buttondown, Tally and a handler of your own work the same way.
+// Whatever you use stores real people's addresses, so name it on privacy.html before you switch it on.
+//
+// While ENDPOINT is empty the form opens the visitor's email app instead, so no address is lost.
 var ENDPOINT = '';
+
 var form = document.getElementById('waitlist-form');
 var note = document.getElementById('formnote');
+var noteText = note.innerHTML;
+
+function say(html, colour) {
+  note.innerHTML = html;
+  note.style.color = colour || '';
+}
+
 form.addEventListener('submit', function (e) {
   e.preventDefault();
   var email = form.email.value.trim();
   if (!email) return;
+  if (form.company.value) return;           // a bot filled the hidden field
+  if (!form.not_us.checked) return;
+
   if (!ENDPOINT) {
-    window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' + encodeURIComponent('Please add ' + email + ' to the Halyard waitlist.');
-    note.textContent = 'Opening your email app. Send the message and you are on the list.';
+    window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' +
+      encodeURIComponent('Please add ' + email + ' to the Halyard waitlist.');
+    say('Opening your email app. Send that message and you are on the list.');
     return;
   }
+
+  var button = form.querySelector('button');
+  button.disabled = true;
+  button.textContent = 'Adding you…';
+  say(noteText);
+
   fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email: email })
+    body: JSON.stringify({ email: email, source: 'halyard-landing' })
   }).then(function (r) {
-    if (!r.ok) throw new Error('bad status');
-    form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You\'re on the list. We\'ll email when practice mode opens.</p>';
-    note.textContent = 'No other email, and no sharing your address.';
+    if (!r.ok) throw new Error('status ' + r.status);
+    form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You are on the list. ' +
+      'We will email when practice mode opens, and once more before real trading does.</p>';
+    say('Nothing else, and we do not share your address.');
   }).catch(function () {
-    note.textContent = 'That did not go through. Email hello@r2rlabs.com and we will add you by hand.';
+    button.disabled = false;
+    button.textContent = 'Join the waitlist';
+    say('That did not go through. Email <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a> and we will add you by hand.', 'var(--red)');
   });
 });
 </script>

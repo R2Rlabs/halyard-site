@@ -18,6 +18,11 @@ Netlify, Vercel and Cloudflare Pages work the same way: point them at the repo a
 `ENDPOINT` in the script at the bottom of `index.html` is empty. While it is, the form opens the
 visitor's email app addressed to hello@r2rlabs.com, so no address is ever silently lost.
 
+To switch it on: create the form (Formspree gives you a URL like https://formspree.io/f/XXXXXXXX),
+paste it into `ENDPOINT`, name that service on `privacy.html` where it says to, and test with a real
+address. The form posts {email, source} as JSON, has a hidden honeypot field for bots, and requires
+the "not in the United States" box.
+
 To collect addresses properly, set `ENDPOINT` to a form service that accepts a JSON POST: Formspree,
 Buttondown, Tally or your own handler. Whatever you choose stores personal data, so check where it
 keeps it and say so on the page if the answer matters.
