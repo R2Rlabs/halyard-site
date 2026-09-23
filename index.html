@@ -97,7 +97,7 @@ footer a{color:var(--muted)}
       <a class="btn" href="#waitlist">Join the waitlist</a>
       <a class="btn ghost" href="#how">See how it works</a>
     </div>
-    <p class="small" style="margin-top:22px">A product by r2rlabs. Not available to users in the United States.</p>
+    <p class="small" style="margin-top:22px">A product by r2rlabs. Lessons and play-money practice are open to everyone, everywhere. Real trading is not available in the United States.</p>
   </div>
 </section>
 
@@ -192,9 +192,9 @@ footer a{color:var(--muted)}
       <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required autocomplete="email">
       <button class="btn" type="submit">Join the waitlist</button>
       <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <label class="consent"><input type="checkbox" name="not_us" required> I am not in the United States, and I want these emails.</label>
+      <label class="consent"><input type="checkbox" name="in_us"> I am in the United States. Send me practice and lesson news only.</label>
     </form>
-    <p class="formnote" id="formnote">We store your address to send those two emails and nothing else. Unsubscribe any time. See the <a href="privacy.html">privacy page</a> for who stores it.</p>
+    <p class="formnote" id="formnote">We store your address to send those emails and nothing else. Unsubscribe any time. See the <a href="privacy.html">privacy page</a> for who stores it.</p>
   </div>
 </section>
 
@@ -209,7 +209,7 @@ footer a{color:var(--muted)}
       <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>
       <a href="privacy.html">Privacy</a>
     </div>
-    <p class="small">Halyard is in development and is not live. Perpetual futures are leveraged products: you can lose everything you put in, quickly. Nothing here is investment advice, and nothing here is an offer to anyone in the United States. Simulated figures are simulations, not forecasts or promises.</p>
+    <p class="small">Halyard is in development and is not live. Perpetual futures are leveraged products: you can lose everything you put in, quickly. Nothing here is investment advice. Lessons and practice are open everywhere; real trading is not offered to anyone in the United States, and we block it by country at the app. Simulated figures are simulations, not forecasts or promises.</p>
     <p class="small">© <span id="year">2026</span> r2rlabs</p>
   </div>
 </footer>
@@ -240,7 +240,6 @@ form.addEventListener('submit', function (e) {
   var email = form.email.value.trim();
   if (!email) return;
   if (form.company.value) return;           // a bot filled the hidden field
-  if (!form.not_us.checked) return;
 
   if (!ENDPOINT) {
     window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' +
@@ -257,7 +256,7 @@ form.addEventListener('submit', function (e) {
   fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email: email, source: 'halyard-landing' })
+    body: JSON.stringify({ email: email, source: 'halyard-landing', in_us: form.in_us.checked })
   }).then(function (r) {
     if (!r.ok) throw new Error('status ' + r.status);
     form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You are on the list. ' +
