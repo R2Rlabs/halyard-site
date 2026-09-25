@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halyard practice — trade with play money at real prices</title>
+<meta name="description" content="Practice trading perpetual futures with 10,000 play USDT at live BTC prices. No deposit, no risk, no account. A product by r2rlabs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:20px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:4px;background:var(--green);display:inline-block}
+.dot.warn{background:var(--amber)}
+.balance{padding:6px 14px;border:1px solid var(--border);border-radius:10px;font-family:var(--mono);font-size:13px}
+main{display:flex;gap:18px;padding:18px;align-items:flex-start;flex-wrap:wrap}
+.col{flex:1;min-width:320px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+h1{font-size:22px;font-weight:600;margin:0 0 6px}
+h2{font-size:15px;font-weight:600;margin:0 0 12px}
+p{margin:0 0 12px;color:var(--soft);font-size:14px}
+.price{font-family:var(--mono);font-size:38px;font-weight:600;letter-spacing:-.01em}
+.sub{font-size:12px;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:5px 0}
+.row span:last-child{font-family:var(--mono)}
+.muted{color:var(--muted)}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:4px;background:var(--bg);border-radius:10px;margin-bottom:12px}
+.side button{height:38px;border:none;border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.side button[aria-pressed=true]{background:var(--green);color:var(--bg)}
+.side button.short[aria-pressed=true]{background:var(--red);color:#fff}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 5px}
+input[type=number]{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font-family:var(--mono);font-size:15px}
+input[type=range]{width:100%;accent-color:var(--green)}
+button.primary{width:100%;height:46px;margin-top:14px;border:none;border-radius:11px;background:var(--green);color:var(--bg);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+button.primary.short{background:var(--red);color:#fff}
+button.primary:disabled{opacity:.5;cursor:default}
+button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.note{display:flex;gap:8px;font-size:12px;color:var(--muted);margin-top:10px;line-height:1.45}
+.warnbox{border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;background:var(--panel2);padding:12px 14px;font-size:13px;color:var(--soft)}
+.hist{font-size:13px;border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;gap:10px}
+.hist:first-of-type{border-top:none}
+footer{padding:20px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;line-height:1.6}
+@media(max-width:780px){main{padding:12px}.price{font-size:30px}}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </span>
+  <span class="pill">Practice</span>
+  <span class="right">
+    <span><span class="dot" id="feed-dot"></span> <span id="feed-status">connecting</span></span>
+    <span class="balance"><span id="balance">10,000.00</span> <span class="muted">PLAY USDT</span></span>
+  </span>
+</header>
+
+<main>
+  <div class="col">
+    <div class="card">
+      <div class="sub">BTC/USD · live</div>
+      <div class="price" id="price">—</div>
+      <div class="sub" id="price-source">waiting for a price</div>
+      <div class="warnbox" style="margin-top:14px">
+        <strong style="color:var(--text)">Play money, real prices.</strong> Nothing here is a deposit and nothing can be won or lost. Orders take about ten seconds to fill, exactly as they will on Trac, so you learn the waiting too.
+      </div>
+    </div>
+
+    <div class="card" id="position-card">
+      <h2>Your position</h2>
+      <p id="no-position">Nothing open. Place an order and it fills in about ten seconds.</p>
+      <div id="position" hidden>
+        <div class="row"><span class="muted">Side</span><span id="pos-side">—</span></div>
+        <div class="row"><span class="muted">Size</span><span id="pos-size">—</span></div>
+        <div class="row"><span class="muted">Entry</span><span id="pos-entry">—</span></div>
+        <div class="row"><span class="muted">Liquidation price</span><span class="red" id="pos-liq">—</span></div>
+        <div class="row"><span class="muted">Profit or loss</span><span id="pos-pnl">—</span></div>
+        <button class="ghost" id="close-btn" style="margin-top:12px;width:100%;height:40px">Close position</button>
+      </div>
+      <div id="pending" hidden>
+        <div class="row"><span class="muted">Filling</span><span id="pend-left">—</span></div>
+        <div class="row"><span class="muted">Price when you pressed</span><span id="pend-price">—</span></div>
+        <div class="row"><span class="muted">Worst price you accept</span><span class="amber" id="pend-worst">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What happened</h2>
+      <div id="history"><p class="muted" style="margin:0">Your trades will appear here.</p></div>
+      <button class="ghost" id="reset-btn" style="margin-top:12px">Start again with 10,000</button>
+    </div>
+  </div>
+
+  <div class="col" style="max-width:380px">
+    <div class="card">
+      <div class="side">
+        <button id="long-btn" aria-pressed="true">Long</button>
+        <button id="short-btn" class="short" aria-pressed="false">Short</button>
+      </div>
+
+      <label for="collateral">Collateral (play USDT)</label>
+      <input type="number" id="collateral" value="500" min="1" step="10">
+
+      <label for="leverage">Leverage · <span id="lev-label">2.0×</span></label>
+      <input type="range" id="leverage" min="1" max="5" step="1" value="2">
+
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">
+        <div class="row"><span class="muted">Position size</span><span id="sum-size">—</span></div>
+        <div class="row"><span class="muted">Liquidation price</span><span class="red" id="sum-liq">—</span></div>
+        <div class="row"><span class="muted">Worst price you accept</span><span id="sum-worst">—</span></div>
+        <div class="row"><span class="muted">Fee (0.06%)</span><span id="sum-fee">—</span></div>
+      </div>
+
+      <button class="primary" id="submit-btn">Open long</button>
+      <div class="note" id="order-note">Filling takes about ten seconds. If the price passes your limit we will not open the position.</div>
+    </div>
+
+    <div class="card">
+      <h2>Beginner limits</h2>
+      <p style="margin-bottom:8px">First 14 days on the real thing: 2× maximum and a tighter 0.3% price limit. Try it here.</p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft)">
+        <input type="checkbox" id="beginner-toggle" style="accent-color:var(--amber)"> Trade as a beginner
+      </label>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Practice prices come from Coinbase or Kraken, whichever is reachable. Real trading uses Pyth prices with signatures checked on-chain by every Halyard node, which is a different and stronger thing.<br>
+  Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
+</footer>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
