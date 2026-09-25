@@ -1,7 +1,7 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=3';
-import { createPractice, RULES } from './practice.js?v=3';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=3';
+import { connectPrice } from './feed.js?v=4';
+import { createPractice, RULES } from './practice.js?v=4';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=4';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -11,12 +11,13 @@ const practice = createPractice();
 const chart = createChart($('chart'));
 let side = 1;
 let dayOpen = null;
+let timeframe = 1;   // minutes per candle
 
 // --- chart -----------------------------------------------------------------------------------
 
 (async () => {
     try {
-        const candles = await loadCandles({ minutes: 1, limit: 180 });
+        const candles = await loadCandles({ minutes: timeframe, limit: 180 });
         chart.setCandles(candles);
         chart.resize();
     } catch {
@@ -38,6 +39,8 @@ function markers() {
     return [
         { price: p.entry, colour: MARKERS.entry, label: 'your entry' },
         { price: practice.liquidationPrice(p), colour: MARKERS.liquidation, label: 'liquidation', dash: [2, 3] },
+        ...(p.stopLoss ? [{ price: p.stopLoss, colour: '#F2555A', label: 'stop-loss', dash: [1, 4] }] : []),
+        ...(p.takeProfit ? [{ price: p.takeProfit, colour: '#34C77B', label: 'take-profit', dash: [1, 4] }] : []),
     ];
 }
 
@@ -86,9 +89,26 @@ collateralInput.oninput = renderForm;
 leverageInput.oninput = renderForm;
 $('submit-btn').onclick = () => {
     const { collateral, leverage } = formValues();
-    const result = practice.submit({ side, collateral, leverage });
+    const stop = Number($('stop-loss').value) || null;
+    const target = Number($('take-profit').value) || null;
+    const result = practice.submit({ side, collateral, leverage, stopLoss: stop, takeProfit: target });
     if (!result.ok) $('order-note').textContent = result.why;
 };
+for (const b of document.querySelectorAll('#tfs button')) {
+    b.onclick = async () => {
+        timeframe = Number(b.dataset.m);
+        for (const other of document.querySelectorAll('#tfs button')) other.classList.toggle('on', other === b);
+        try { chart.setCandles(await loadCandles({ minutes: timeframe, limit: 180 })); } catch { /* keep what we have */ }
+    };
+}
+
+for (const b of document.querySelectorAll('.pcts button')) {
+    b.onclick = () => {
+        collateralInput.value = Math.floor(practice.state.balance * Number(b.dataset.p));
+        renderForm();
+    };
+}
+
 $('reset-btn').onclick = () => { if (confirm('Start again with 10,000 play USDT?')) practice.reset(); };
 $('beginner-toggle').onchange = (e) => practice.setBeginner(e.target.checked);
 
@@ -159,6 +179,8 @@ function renderAll(_state, _price, event) {
         filled: 'Filled. Your entry and liquidation price are marked on the chart.',
         liquidated: 'Liquidated: the price reached the level where your collateral ran out. That is what it feels like.',
         submitted: 'Submitted. It fills in about ten seconds, or not at all if the price moves too far.',
+        'stop-loss': 'Your stop-loss closed the position. That decision was made while you were calm, which is the point of it.',
+        'take-profit': 'Your take-profit closed the position.',
     };
     if (event?.type && notes[event.type]) $('order-note').textContent = notes[event.type];
 }
@@ -168,7 +190,7 @@ practice.subscribe(renderAll);
 // --- live price ------------------------------------------------------------------------------
 
 connectPrice({
-    onPrice: (p) => { practice.onPrice(p); chart.tick(p, 1); },
+    onPrice: (p) => { practice.onPrice(p); chart.tick(p, timeframe); },
     onStatus: ({ state, source, detail }) => {
         $('feed-dot').className = state === 'live' ? 'dot' : 'dot warn';
         $('feed-status').textContent = state === 'live' ? `live · ${source}` : `${state}${detail ? ` · ${detail}` : ''}`;

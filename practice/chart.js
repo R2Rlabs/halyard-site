@@ -13,7 +13,7 @@ export async function loadCandles({ minutes = 1, limit = 180 } = {}) {
     // [ time, low, high, open, close, volume ], newest first
     const rows = await res.json();
     return rows
-        .map((r) => ({ t: r[0] * 1000, l: r[1], h: r[2], o: r[3], c: r[4] }))
+        .map((r) => ({ t: r[0] * 1000, l: r[1], h: r[2], o: r[3], c: r[4], v: r[5] }))
         .sort((a, b) => a.t - b.t)
         .slice(-limit);
 }
@@ -86,6 +86,19 @@ export function createChart(canvas) {
             ctx.fillRect(cx - bodyW / 2, top, bodyW, h);
         });
 
+        // volume, in the bottom fifth
+        const volH = plotH * 0.18;
+        let maxVol = 0;
+        for (const c of candles) maxVol = Math.max(maxVol, c.v ?? 0);
+        if (maxVol > 0) {
+            candles.forEach((c, i) => {
+                const cx = i * slot + slot / 2;
+                const h = ((c.v ?? 0) / maxVol) * volH;
+                ctx.fillStyle = (c.c >= c.o ? UP : DOWN) + '44';
+                ctx.fillRect(cx - bodyW / 2, padTop + plotH - h, bodyW, h);
+            });
+        }
+
         // the newest price, marked on the axis
         const last = candles[candles.length - 1];
         const ly = Math.round(y(last.c)) + 0.5;
@@ -122,7 +135,7 @@ export function createChart(canvas) {
             const last = candles[candles.length - 1];
             const now = Date.now();
             if (now - last.t >= span) {
-                candles.push({ t: last.t + span, o: last.c, h: Math.max(last.c, price), l: Math.min(last.c, price), c: price });
+                candles.push({ t: last.t + span, o: last.c, h: Math.max(last.c, price), l: Math.min(last.c, price), c: price, v: 0 });
                 if (candles.length > 180) candles.shift();
             } else {
                 last.c = price;

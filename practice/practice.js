@@ -65,6 +65,15 @@ export function createPractice({ beginner = false } = {}) {
         price = next;
         if (state.position) {
             const p = state.position;
+
+            // Stop-loss and take-profit close before anything else, which is the point of them.
+            const hitStop = p.stopLoss && (p.side === 1 ? price <= p.stopLoss : price >= p.stopLoss);
+            const hitTarget = p.takeProfit && (p.side === 1 ? price >= p.takeProfit : price <= p.takeProfit);
+            if (hitStop || hitTarget) {
+                close(hitStop ? 'stop-loss' : 'take-profit');
+                return;
+            }
+
             if (equity(p, price) <= p.qty * price * RULES.maintenanceMargin) {
                 // Liquidation: whatever is left goes, which is the lesson.
                 state.history.unshift({
@@ -79,7 +88,7 @@ export function createPractice({ beginner = false } = {}) {
         emit({ type: 'price' });
     }
 
-    function submit({ side, collateral, leverage }) {
+    function submit({ side, collateral, leverage, stopLoss = null, takeProfit = null }) {
         if (state.pending) return { ok: false, why: 'An order is already filling.' };
         if (state.position) return { ok: false, why: 'Close your position first.' };
         if (!price) return { ok: false, why: 'Waiting for a price.' };
@@ -88,7 +97,7 @@ export function createPractice({ beginner = false } = {}) {
 
         const worst = side === 1 ? price * (1 + band()) : price * (1 - band());
         state.pending = {
-            side, collateral, leverage: lev,
+            side, collateral, leverage: lev, stopLoss, takeProfit,
             submittedAt: Date.now(),
             submittedPrice: price,
             worst,
@@ -120,6 +129,8 @@ export function createPractice({ beginner = false } = {}) {
         state.balance -= pending.collateral;
         state.position = {
             side: pending.side,
+            stopLoss: pending.stopLoss,
+            takeProfit: pending.takeProfit,
             collateral,
             leverage: pending.leverage,
             entry: price,
@@ -131,7 +142,7 @@ export function createPractice({ beginner = false } = {}) {
         emit({ type: 'filled' });
     }
 
-    function close() {
+    function close(reason = 'closed') {
         const p = state.position;
         if (!p || !price) return { ok: false, why: 'Nothing to close.' };
         const eq = equity(p, price);
@@ -139,11 +150,11 @@ export function createPractice({ beginner = false } = {}) {
         const returned = Math.max(0, eq - fee);
         state.balance += returned;
         state.history.unshift({
-            kind: 'closed', side: p.side, entry: p.entry, exit: price,
+            kind: 'closed', reason, side: p.side, entry: p.entry, exit: price,
             collateral: p.collateral, pnl: returned - p.collateral, at: Date.now(),
         });
         state.position = null;
-        emit({ type: 'closed' });
+        emit({ type: reason === 'closed' ? 'closed' : reason });
         return { ok: true };
     }
 

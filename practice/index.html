@@ -68,6 +68,15 @@ button.primary:disabled{opacity:.45;cursor:default}
 button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:12px;cursor:pointer}
 .note{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5}
 .warnbox{border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:9px;background:var(--panel2);padding:10px 12px;font-size:12px;color:var(--soft);line-height:1.5}
+.chart-tools{position:absolute;left:16px;right:16px;top:12px;display:flex;align-items:center;gap:10px;z-index:2}
+.tfs{margin-left:auto;display:flex;gap:2px}
+.tfs button{padding:3px 9px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.tfs button.on{background:#1C222B;color:var(--text)}
+.pcts{display:flex;gap:5px;margin-top:7px}
+.pcts button{flex:1;padding:5px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.pcts button:hover{color:var(--text)}
+.tpsl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.tpsl input{padding:8px 9px;font-size:13px}
 footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.6}
 
 @media(max-width:900px){
@@ -111,7 +120,12 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   <div class="left">
     <div class="card" id="chart-wrap">
       <canvas id="chart"></canvas>
-      <div class="chart-note" id="chart-note">BTC/USD · 1 minute candles · live</div>
+      <div class="chart-tools">
+        <span class="chart-note" id="chart-note">BTC/USD · live</span>
+        <span class="tfs" id="tfs">
+          <button data-m="1" class="on">1m</button><button data-m="5">5m</button><button data-m="15">15m</button><button data-m="60">1h</button><button data-m="360">6h</button>
+        </span>
+      </div>
     </div>
 
     <div class="card">
@@ -140,9 +154,14 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
       <label for="collateral">Collateral (play USDT)</label>
       <input type="number" id="collateral" value="500" min="1" step="10">
 
+      <div class="pcts"><button data-p="0.25">25%</button><button data-p="0.5">50%</button><button data-p="0.75">75%</button><button data-p="1">Max</button></div>
       <label for="leverage">Leverage · <span id="lev-label">2.0×</span></label>
       <input type="range" id="leverage" min="1" max="5" step="1" value="2">
 
+      <div class="tpsl">
+        <div><label for="stop-loss">Stop-loss (optional)</label><input type="number" id="stop-loss" placeholder="price" step="1"></div>
+        <div><label for="take-profit">Take-profit (optional)</label><input type="number" id="take-profit" placeholder="price" step="1"></div>
+      </div>
       <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
         <div class="row"><span class="muted">Position size</span><span id="sum-size">—</span></div>
         <div class="row"><span class="muted">Liquidation price</span><span class="red" id="sum-liq">—</span></div>
@@ -152,6 +171,12 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
       <button class="primary" id="submit-btn">Open long</button>
       <div class="note" id="order-note">Fills take about ten seconds, the same as settling on Trac. If the price passes your limit, nothing opens.</div>
+    </div>
+
+    <div class="card">
+      <h2>Why there is no order book</h2>
+      <p style="margin:0 0 8px;font-size:12px;color:var(--soft);line-height:1.55">Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price.</p>
+      <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.55">That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
     </div>
 
     <div class="card" id="pending-card" hidden>
@@ -176,6 +201,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./app.js?v=3"></script>
+<script type="module" src="./app.js?v=4"></script>
 </body>
 </html>
