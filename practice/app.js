@@ -1,9 +1,9 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=18';
-import { createPractice, RULES } from './practice.js?v=18';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=18';
-import { loadFunding, clock } from './funding.js?v=18';
-import { createTour } from './tour.js?v=18';
+import { connectPrice } from './feed.js?v=20';
+import { createPractice, RULES } from './practice.js?v=20';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=20';
+import { loadFunding, clock } from './funding.js?v=20';
+import { createTour } from './tour.js?v=20';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -97,6 +97,9 @@ function renderForm() {
 $('long-btn').onclick = () => { side = 1; $('long-btn').setAttribute('aria-pressed', 'true'); $('short-btn').setAttribute('aria-pressed', 'false'); renderForm(); };
 $('short-btn').onclick = () => { side = -1; $('short-btn').setAttribute('aria-pressed', 'true'); $('long-btn').setAttribute('aria-pressed', 'false'); renderForm(); };
 collateralInput.oninput = renderForm;
+// Typing an exit puts it on the ladder straight away, before the order is placed.
+$("stop-loss").oninput = renderLadder;
+$("take-profit").oninput = renderLadder;
 leverageInput.oninput = renderForm;
 $('submit-btn').onclick = () => {
     const { collateral, leverage } = formValues();
@@ -176,12 +179,31 @@ function renderLadder() {
     const bar = (v) => `${Math.min(40, (Math.abs(v) / biggest) * 40)}%`;   // leave room for the number
     const tag = (v) => (Math.abs(v) < 0.005 ? '' : `${v > 0 ? '+' : '−'}${money(Math.abs(v))}`);
 
-    $('ladder').innerHTML = rows.map((r) => `
-      <div class="rung${r.here ? ' here' : ''}">
+    // Your own levels ride the ladder: the rung holding each one is named, so opening a position, or
+    // typing a stop-loss, shows up here straight away.
+    const marks = [];
+    if (position) {
+        marks.push({ price: position.entry, label: 'entry', cls: 'entry' });
+        if (position.stopLoss) marks.push({ price: position.stopLoss, label: 'stop', cls: 'stop' });
+        if (position.takeProfit) marks.push({ price: position.takeProfit, label: 'target', cls: 'target' });
+    } else {
+        const stop = Number($('stop-loss').value) || null;
+        const target = Number($('take-profit').value) || null;
+        if (stop) marks.push({ price: stop, label: 'stop', cls: 'stop' });
+        if (target) marks.push({ price: target, label: 'target', cls: 'target' });
+    }
+    const markFor = (row) => marks.filter((m) => m.price >= row.at - tick / 2 && m.price < row.at + tick / 2);
+
+    $('ladder').innerHTML = rows.map((r) => {
+        const here = markFor(r);
+        const flag = here.length ? `<u class="${here[0].cls}">${here.map((m) => m.label).join(' · ')}</u>` : '';
+        return `
+      <div class="rung${r.here ? ' here' : ''}${here.length ? ' marked' : ''}">
         <span class="side-cell l">${r.pnl > 0 ? `<b class="green">${tag(r.pnl)}</b><i style="width:${bar(r.pnl)}"></i>` : `<b class="red">${tag(r.pnl)}</b>`}</span>
-        <span class="px">${money(r.at, 0)}</span>
+        <span class="px">${money(r.at, 0)}${flag}</span>
         <span class="side-cell s">${r.pnl < 0 ? `<i style="width:${bar(r.pnl)}"></i><b class="green">${tag(-r.pnl)}</b>` : `<b class="red">${tag(-r.pnl)}</b>`}</span>
-      </div>`).join('');
+      </div>`;
+    }).join('');
 
     $('ladder-foot').innerHTML = position
         ? `Your ${position.side === 1 ? 'long' : 'short'} against the trader on the other side. Liquidation at <span class="red">${money(practice.liquidationPrice(position), 0)}</span>.`
