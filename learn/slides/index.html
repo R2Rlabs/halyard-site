@@ -20,8 +20,9 @@ header{display:flex;align-items:center;gap:14px;height:52px;padding:0 16px;borde
 .tag{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
 .right{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--text)}
 
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 16px;overflow-y:auto}
-.slide{width:100%;max-width:820px}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 16px 40px;overflow-y:auto}
+.deck{width:100%;max-width:820px}
+.slide{width:100%}
 h1{font-size:clamp(26px,4.6vw,42px);line-height:1.12;font-weight:600;margin:0 0 10px}
 h2{font-size:clamp(22px,3.6vw,32px);line-height:1.15;font-weight:600;margin:0 0 16px}
 p{color:var(--soft);margin:0 0 14px;font-size:clamp(15px,1.7vw,17px)}
@@ -50,15 +51,18 @@ p{color:var(--soft);margin:0 0 14px;font-size:clamp(15px,1.7vw,17px)}
 .btn{padding:13px 20px;border-radius:11px;background:var(--amber);color:var(--bg);font-weight:600;text-decoration:none}
 .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
 
-footer{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--border);background:var(--panel)}
-.dots{display:flex;gap:5px;flex:1;flex-wrap:wrap}
-.dot{width:20px;height:4px;border-radius:2px;background:var(--border);border:none;padding:0;cursor:pointer}
+/* The controls sit directly under the slide text, where your eye already is. */
+.nav{display:flex;align-items:center;gap:10px;margin-top:26px}
+.nav button{padding:11px 22px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.nav button:hover:not(:disabled){border-color:#39424f}
+.nav button:disabled{opacity:.35;cursor:default}
+.nav button.primary{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px}
+.dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:16px}
+.dot{width:22px;height:4px;border-radius:2px;background:var(--border);border:none;padding:0;cursor:pointer}
+.dot:hover{background:#4A5361}
 .dot.on{background:var(--amber)}
 .dot.seen{background:#3A414C}
-.nav{display:flex;gap:8px}
-.nav button{padding:8px 16px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
-.nav button:disabled{opacity:.4;cursor:default}
-.nav button.primary{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
 @media(max-width:700px){.two,.grid3,.grid4{grid-template-columns:1fr}main{padding:18px 14px}}
 </style>
 </head>
@@ -73,16 +77,18 @@ footer{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:12px 16px;
   <span class="right"><span id="live-price">—</span> <span style="color:var(--muted)">BTC live</span></span>
 </header>
 
-<main><div class="slide" id="slide"></div></main>
-
-<footer>
-  <div class="dots" id="dots"></div>
-  <div class="nav">
-    <button id="prev">Back</button>
-    <button id="next" class="primary">Next</button>
+<main>
+  <div class="deck">
+    <div class="slide" id="slide"></div>
+    <div class="nav">
+      <button id="prev">Back</button>
+      <button id="next" class="primary">Next</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="dots" id="dots"></div>
   </div>
-</footer>
+</main>
 
-<script type="module" src="./slides.js?v=2"></script>
+<script type="module" src="./slides.js?v=3"></script>
 </body>
 </html>

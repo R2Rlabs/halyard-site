@@ -45,6 +45,7 @@ function render() {
     const next = $('next');
     next.textContent = at === SLIDES.length - 1 ? 'Finished' : 'Next';
     next.disabled = at === SLIDES.length - 1;
+    $('count').textContent = `${at + 1} of ${SLIDES.length}`;
 
     for (const dot of $('dots').children) {
         const i = Number(dot.dataset.i);

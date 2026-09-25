@@ -30,6 +30,7 @@ export function createPractice({ beginner = false } = {}) {
         pending: null,
         history: [],
         beginner,
+        slippage: RULES.defaultBand,
     });
 
     let state = load() ?? blank();
@@ -50,7 +51,12 @@ export function createPractice({ beginner = false } = {}) {
     const emit = (event) => { save(); for (const fn of listeners) fn(state, price, event); };
 
     const maxLeverage = () => (state.beginner ? RULES.beginnerLeverage : RULES.maxLeverage);
-    const band = () => (state.beginner ? RULES.beginnerBand : RULES.defaultBand);
+
+    // The widest move the rules will ever let an order fill through. A trader may choose tighter than
+    // this but never wider: loosening it is the one direction that can hurt them.
+    const maxBand = () => (state.beginner ? RULES.beginnerBand : RULES.defaultBand);
+    const band = () => Math.min(state.slippage ?? maxBand(), maxBand());
+    const worstPrice = (side, at = price) => (side === 1 ? at * (1 + band()) : at * (1 - band()));
 
     const equity = (p, at) => p.collateral + p.side * p.qty * (at - p.entry);
     const liquidationPrice = (p) => {
@@ -95,7 +101,7 @@ export function createPractice({ beginner = false } = {}) {
         const lev = Math.min(Math.max(1, leverage), maxLeverage());
         if (!(collateral > 0) || collateral > state.balance) return { ok: false, why: 'Not enough play USDT.' };
 
-        const worst = side === 1 ? price * (1 + band()) : price * (1 - band());
+        const worst = worstPrice(side);
         state.pending = {
             side, collateral, leverage: lev, stopLoss, takeProfit,
             submittedAt: Date.now(),
@@ -168,12 +174,17 @@ export function createPractice({ beginner = false } = {}) {
         emit({ type: 'mode' });
     }
 
+    function setSlippage(fraction) {
+        state.slippage = Math.min(Math.max(0.0005, Number(fraction) || RULES.defaultBand), RULES.defaultBand);
+        emit({ type: 'slippage' });
+    }
+
     return {
         RULES,
-        onPrice, submit, tick, close, reset, setBeginner,
+        onPrice, submit, tick, close, reset, setBeginner, setSlippage,
         subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
         get state() { return state; },
         get price() { return price; },
-        maxLeverage, band, equity, liquidationPrice,
+        maxLeverage, band, maxBand, worstPrice, equity, liquidationPrice,
     };
 }

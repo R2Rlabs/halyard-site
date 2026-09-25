@@ -75,6 +75,27 @@ button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;b
 .pcts{display:flex;gap:5px;margin-top:7px}
 .pcts button{flex:1;padding:5px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
 .pcts button:hover{color:var(--text)}
+.bands{display:flex;gap:5px;margin-top:7px}
+.bands button{flex:1;padding:6px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.bands button:hover:not(:disabled){color:var(--text)}
+.bands button.on{border-color:var(--amber);color:var(--amber);background:rgba(240,166,58,.08)}
+.bands button:disabled{opacity:.35;cursor:not-allowed}
+.band-note{font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0 10px}
+
+/* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
+.tour-on{position:relative;z-index:9998;border-radius:10px;box-shadow:0 0 0 2px var(--amber),0 0 0 9999px rgba(6,8,12,.72);transition:box-shadow .2s}
+.tour-bubble{position:fixed;z-index:9999;background:var(--panel2);border:1px solid var(--amber);border-radius:12px;padding:15px 16px;box-shadow:0 18px 44px rgba(0,0,0,.55)}
+.tour-bubble h3{margin:2px 0 7px;font-size:16px;font-weight:600}
+.tour-bubble p{margin:0;font-size:13px;line-height:1.6;color:var(--soft)}
+.tour-bubble strong{color:var(--text);font-weight:600}
+.tour-step{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.04em}
+.tour-nav{display:flex;align-items:center;gap:12px;margin-top:13px}
+.tour-next{padding:8px 18px;border:none;border-radius:9px;background:var(--amber);color:var(--bg);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.tour-skip{border:none;background:none;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;margin-left:auto;padding:0}
+.tour-skip:hover{color:var(--text)}
+.tour-hint{font-size:12px;color:var(--amber)}
+.tour-btn{padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.tour-btn:hover{color:var(--text);border-color:#39424f}
 .tpsl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .tpsl input{padding:8px 9px;font-size:13px}
 footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.6}
@@ -103,6 +124,7 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
     <a href="../">About</a>
   </nav>
   <span class="right">
+    <button class="tour-btn" id="tour-btn">Show me around</button>
     <span class="status"><span class="dot" id="feed-dot"></span> <span id="feed-status">connecting</span></span>
     <span class="balance"><span id="balance">10,000.00</span> <span class="muted">PLAY</span></span>
   </span>
@@ -160,11 +182,17 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
       <label for="leverage">Leverage · <span id="lev-label">2.0×</span></label>
       <input type="range" id="leverage" min="1" max="5" step="1" value="2">
 
+      <label>Worst price you will accept</label>
+      <div class="bands" id="bands">
+        <button data-b="0.001">0.1%</button><button data-b="0.0025">0.25%</button><button data-b="0.005" class="on">0.5%</button>
+      </div>
+      <div class="band-note" id="band-note">The order fills at anything better than this, and does not fill at all past it.</div>
+
       <div class="tpsl">
         <div><label for="stop-loss">Stop-loss (optional)</label><input type="number" id="stop-loss" placeholder="price" step="1"></div>
         <div><label for="take-profit">Take-profit (optional)</label><input type="number" id="take-profit" placeholder="price" step="1"></div>
       </div>
-      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
+      <div id="sum-rows" style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
         <div class="row"><span class="muted">Position size</span><span id="sum-size">—</span></div>
         <div class="row"><span class="muted">Liquidation price</span><span class="red" id="sum-liq">—</span></div>
         <div class="row"><span class="muted">Worst price you accept</span><span id="sum-worst">—</span></div>
@@ -203,6 +231,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./app.js?v=6"></script>
+<script type="module" src="./app.js?v=7"></script>
 </body>
 </html>

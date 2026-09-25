@@ -1,14 +1,16 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=6';
-import { createPractice, RULES } from './practice.js?v=6';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=6';
-import { loadFunding, clock } from './funding.js?v=6';
+import { connectPrice } from './feed.js?v=7';
+import { createPractice, RULES } from './practice.js?v=7';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=7';
+import { loadFunding, clock } from './funding.js?v=7';
+import { createTour } from './tour.js?v=7';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 const signed = (n) => `${n >= 0 ? '+' : ''}${money(n)}`;
 
 const practice = createPractice();
+const tour = createTour(practice);
 const chart = createChart($('chart'));
 let side = 1;
 let dayOpen = null;
@@ -69,11 +71,19 @@ function renderForm() {
     $('sum-size').textContent = `${money(size)} USDT`;
     $('sum-fee').textContent = `${money(size * RULES.feeRate)} USDT`;
 
+    // A trader may tighten the band but never widen it, so the beginner cap simply removes options.
+    for (const b of document.querySelectorAll('#bands button')) {
+        const value = Number(b.dataset.b);
+        b.disabled = value > practice.maxBand();
+        b.classList.toggle('on', !b.disabled && Math.abs(value - band) < 1e-9);
+        b.title = b.disabled ? `Beginner mode keeps this at ${(practice.maxBand() * 100).toFixed(1)}% or tighter` : '';
+    }
+
     if (price && collateral > 0) {
         const lev = Number(leverageInput.value);
         const qty = (collateral * (1 - RULES.feeRate * lev) * lev) / price;
         $('sum-liq').textContent = money(practice.liquidationPrice({ side, collateral: collateral * (1 - RULES.feeRate * lev), qty, entry: price }));
-        $('sum-worst').textContent = `${money(side === 1 ? price * (1 + band) : price * (1 - band))} (${(band * 100).toFixed(1)}%)`;
+        $('sum-worst').textContent = `${money(practice.worstPrice(side))} (${(band * 100).toFixed(2)}%)`;
     } else {
         $('sum-liq').textContent = '—';
         $('sum-worst').textContent = '—';
@@ -111,8 +121,18 @@ for (const b of document.querySelectorAll('.pcts button')) {
     };
 }
 
+for (const b of document.querySelectorAll('#bands button')) {
+    b.onclick = () => {
+        practice.setSlippage(Number(b.dataset.b));
+        $('band-note').textContent = Number(b.dataset.b) <= 0.001
+            ? 'Tight: you will rarely pay more than you expected, and more of your orders will be refused when the market is moving.'
+            : 'The order fills at anything better than this, and does not fill at all past it.';
+    };
+}
+
 $('reset-btn').onclick = () => { if (confirm('Start again with 10,000 play USDT?')) practice.reset(); };
 $('beginner-toggle').onchange = (e) => practice.setBeginner(e.target.checked);
+$('tour-btn').onclick = () => tour.start();
 
 // --- positions and history -------------------------------------------------------------------
 
@@ -218,3 +238,6 @@ setInterval(() => { if (funding?.nextAt) $('funding-clock').textContent = clock(
 
 setInterval(() => { practice.tick(); if (practice.state.pending) renderPositions(); }, 250);
 renderAll();
+
+// Someone arriving for the first time gets walked through it; everyone else asks for it.
+tour.maybeStart();
