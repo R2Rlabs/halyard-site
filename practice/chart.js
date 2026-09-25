@@ -50,7 +50,12 @@ export function createChart(canvas) {
 
         let lo = Infinity, hi = -Infinity;
         for (const c of candles) { lo = Math.min(lo, c.l); hi = Math.max(hi, c.h); }
-        for (const line of lines) { if (line.price > 0 && line.price < hi * 3) { lo = Math.min(lo, line.price); hi = Math.max(hi, line.price); } }
+        // Marker lines widen the scale only when they are near the price. A 5x liquidation sits ~20%
+        // away, and letting it into the range squashes every candle into a line.
+        const room = (hi - lo) * 1.5;
+        for (const line of lines) {
+            if (line.price > lo - room && line.price < hi + room) { lo = Math.min(lo, line.price); hi = Math.max(hi, line.price); }
+        }
         const pad = (hi - lo) * 0.08 || 1;
         lo -= pad; hi += pad;
 
@@ -113,7 +118,16 @@ export function createChart(canvas) {
 
         // entry and liquidation lines, when a position is open
         for (const line of lines) {
-            if (!(line.price > lo && line.price < hi)) continue;
+            if (!(line.price > lo && line.price < hi)) {
+                // Off the top or bottom of the scale: say where it is rather than pretend it is gone.
+                const below = line.price <= lo;
+                ctx.fillStyle = line.colour;
+                ctx.font = '10px "IBM Plex Sans", sans-serif';
+                ctx.fillText(`${line.label} ${line.price.toLocaleString('en-US', { maximumFractionDigits: 0 })} ${below ? '↓' : '↑'}`,
+                    6, below ? padTop + plotH - 6 : padTop + 8);
+                ctx.font = '11px "IBM Plex Mono", monospace';
+                continue;
+            }
             const py = Math.round(y(line.price)) + 0.5;
             ctx.setLineDash(line.dash ?? [5, 4]);
             ctx.strokeStyle = line.colour;

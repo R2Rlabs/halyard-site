@@ -25,7 +25,7 @@ nav a.on{color:var(--text);background:#1C222B}
 .dot.warn{background:var(--amber)}
 .balance{padding:6px 12px;border:1px solid var(--border);border-radius:9px;font-family:var(--mono);font-size:13px;white-space:nowrap}
 
-.market{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.market{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
 .sym{padding:7px 12px;border:1px solid var(--border);border-radius:9px;font-weight:600}
 .stat{display:flex;flex-direction:column;gap:1px}
 .stat .k{font-size:11px;color:var(--muted)}
@@ -33,18 +33,18 @@ nav a.on{color:var(--text);background:#1C222B}
 .big{font-family:var(--mono);font-size:24px;font-weight:600}
 .tag{margin-left:auto;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--amber);background:rgba(240,166,58,.12)}
 
-main{display:flex;gap:14px;padding:14px;align-items:flex-start}
-.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
-.side-col{width:330px;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+main{display:flex;gap:10px;padding:10px;align-items:flex-start}
+.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.side-col{width:316px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
 .card h2{font-size:14px;font-weight:600;margin:0 0 10px}
-#chart-wrap{position:relative;height:360px;padding:10px 10px 4px}
+#chart-wrap{position:relative;height:min(58vh,520px);min-height:320px;padding:10px 10px 4px}
 #chart{width:100%;height:100%;display:block}
 .chart-note{position:absolute;left:16px;top:14px;font-size:11px;color:var(--muted)}
 
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-weight:500;font-size:11px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
-td{padding:9px 8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
 td.name{font-family:inherit;font-weight:600}
 .badge{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;font-family:inherit}
 .badge.long{color:var(--green);background:rgba(52,199,123,.12)}
@@ -56,13 +56,13 @@ td.name{font-family:inherit;font-weight:600}
 .side button{height:36px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
 .side button[aria-pressed=true]{background:var(--green);color:var(--bg)}
 .side button.short[aria-pressed=true]{background:var(--red);color:#fff}
-label{display:block;font-size:11px;color:var(--muted);margin:10px 0 5px}
+label{display:block;font-size:11px;color:var(--muted);margin:8px 0 4px}
 input[type=number]{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);font-family:var(--mono);font-size:14px}
 input[type=range]{width:100%;accent-color:var(--green)}
 .row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:12px}
 .row span:last-child{font-family:var(--mono)}
 .muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
-button.primary{width:100%;height:44px;margin-top:12px;border:none;border-radius:10px;background:var(--green);color:var(--bg);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+button.primary{width:100%;height:42px;margin-top:10px;border:none;border-radius:10px;background:var(--green);color:var(--bg);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 button.primary.short{background:var(--red);color:#fff}
 button.primary:disabled{opacity:.45;cursor:default}
 button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:12px;cursor:pointer}
@@ -80,7 +80,15 @@ button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;b
 .bands button:hover:not(:disabled){color:var(--text)}
 .bands button.on{border-color:var(--amber);color:var(--amber);background:rgba(240,166,58,.08)}
 .bands button:disabled{opacity:.35;cursor:not-allowed}
-.band-note{font-size:11px;color:var(--muted);line-height:1.5;margin:6px 0 10px}
+.band-note{font-size:11px;color:var(--muted);line-height:1.5;margin:5px 0 4px}
+.fold{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px}
+.fold summary{font-size:12px;font-weight:600;cursor:pointer;color:var(--soft);list-style:none}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary::before{content:"+";color:var(--amber);margin-right:7px;font-family:var(--mono)}
+.fold[open] summary::before{content:"−"}
+.fold p{margin:9px 0 2px;font-size:12px;color:var(--muted);line-height:1.55}
+.beginner{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--soft);margin:10px 0 0;padding-top:9px;border-top:1px solid var(--border)}
+.beginner input{accent-color:var(--amber)}
 
 /* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
 .tour-on{position:relative;z-index:9998;border-radius:10px;box-shadow:0 0 0 2px var(--amber),0 0 0 9999px rgba(6,8,12,.72);transition:box-shadow .2s}
@@ -201,13 +209,9 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
       <button class="primary" id="submit-btn">Open long</button>
       <div class="note" id="order-note">Fills take about ten seconds, the same as settling on Trac. If the price passes your limit, nothing opens.</div>
+      <label class="beginner"><input type="checkbox" id="beginner-toggle"> Trade as a beginner — 2× and a 0.3% limit</label>
     </div>
 
-    <div class="card">
-      <h2>Why there is no order book</h2>
-      <p style="margin:0 0 8px;font-size:12px;color:var(--soft);line-height:1.55">Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price.</p>
-      <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.55">That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
-    </div>
 
     <div class="card" id="pending-card" hidden>
       <h2>Filling…</h2>
@@ -216,13 +220,14 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
       <div class="row"><span class="muted">Worst you accept</span><span class="amber" id="pend-worst">—</span></div>
     </div>
 
-    <div class="card">
-      <h2>Beginner limits</h2>
-      <div class="warnbox" style="margin-bottom:10px">On the real thing, your first week is capped at 2×, with a tighter 0.3% price limit and no more than 1,000 USDT deposited in total.</div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);margin:0">
-        <input type="checkbox" id="beginner-toggle" style="accent-color:var(--amber)"> Trade as a beginner
-      </label>
-    </div>
+    <details class="fold">
+      <summary>Why there is no order book</summary>
+      <p>Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price. That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
+    </details>
+    <details class="fold">
+      <summary>Beginner limits</summary>
+      <p>On the real thing, your first week is capped at 2×, with a tighter 0.3% price limit and no more than 1,000 USDT deposited in total.</p>
+    </details>
   </div>
 </main>
 
@@ -231,6 +236,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./app.js?v=8"></script>
+<script type="module" src="./app.js?v=9"></script>
 </body>
 </html>
