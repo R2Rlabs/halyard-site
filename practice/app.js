@@ -1,8 +1,8 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=5';
-import { createPractice, RULES } from './practice.js?v=5';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=5';
-import { loadFunding, secondsToNextHour, clock } from './funding.js?v=5';
+import { connectPrice } from './feed.js?v=6';
+import { createPractice, RULES } from './practice.js?v=6';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=6';
+import { loadFunding, clock } from './funding.js?v=6';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -205,16 +205,16 @@ async function refreshFunding() {
     try {
         funding = await loadFunding();
         const el = $('funding');
-        el.textContent = `${funding.perHourPct >= 0 ? '+' : ''}${funding.perHourPct.toFixed(4)}% / h`;
-        el.className = funding.perHourPct >= 0 ? 'green' : 'red';
-        el.title = `Live rate from ${funding.source}. Halyard's own rate will follow its own long and short balance.`;
+        el.textContent = `${funding.rate >= 0 ? '+' : ''}${funding.rate.toFixed(4)}%`;
+        el.className = funding.rate >= 0 ? 'green' : 'red';
+        el.title = `${funding.source} BTC perp, charged every ${funding.everyHours} hours. Halyard charges hourly from its own long and short balance.`;
     } catch {
         $('funding').textContent = 'unavailable';
     }
 }
 refreshFunding();
 setInterval(refreshFunding, 180_000);
-setInterval(() => { $('funding-clock').textContent = clock(secondsToNextHour()); }, 1000);
+setInterval(() => { if (funding?.nextAt) $('funding-clock').textContent = clock(funding.nextAt - Date.now()); }, 1000);
 
 setInterval(() => { practice.tick(); if (practice.state.pending) renderPositions(); }, 250);
 renderAll();
