@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training slides — Halyard</title>
+<meta name="description" content="A guided walk through opening a long and a short on Halyard, with today's Bitcoin price. About six minutes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.55;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:14px;height:52px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;text-decoration:none;color:var(--text)}
+.tag{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.right{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--text)}
+
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 16px;overflow-y:auto}
+.slide{width:100%;max-width:820px}
+h1{font-size:clamp(26px,4.6vw,42px);line-height:1.12;font-weight:600;margin:0 0 10px}
+h2{font-size:clamp(22px,3.6vw,32px);line-height:1.15;font-weight:600;margin:0 0 16px}
+p{color:var(--soft);margin:0 0 14px;font-size:clamp(15px,1.7vw,17px)}
+.lead{font-size:clamp(16px,2vw,19px)}
+.sub{color:var(--muted);font-size:17px}
+.note{font-size:14px;color:var(--muted);border-left:2px solid var(--amber);padding-left:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--soft)}
+.box .k{font-size:12px;color:var(--muted);margin-bottom:4px}
+.box .k.red{color:var(--red)}.box .k.amber{color:var(--amber)}
+.big{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--text);margin:2px 0}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+.rail{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+.mark{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+.mark .v{font-family:var(--mono);font-size:20px;font-weight:600}
+.mark .k{font-size:13px;color:var(--muted)}
+.mark.high{border-left:3px solid var(--green)}
+.mark.low{border-left:3px solid var(--red)}
+.steps{margin:0 0 16px;padding-left:20px;color:var(--soft);font-size:15px}
+.steps li{margin-bottom:7px}
+.pill{padding:2px 9px;border-radius:999px;font-size:13px;font-weight:600}
+.pill.green{background:var(--green);color:var(--bg)}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{padding:13px 20px;border-radius:11px;background:var(--amber);color:var(--bg);font-weight:600;text-decoration:none}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+
+footer{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:12px 16px;border-top:1px solid var(--border);background:var(--panel)}
+.dots{display:flex;gap:5px;flex:1;flex-wrap:wrap}
+.dot{width:20px;height:4px;border-radius:2px;background:var(--border);border:none;padding:0;cursor:pointer}
+.dot.on{background:var(--amber)}
+.dot.seen{background:#3A414C}
+.nav{display:flex;gap:8px}
+.nav button{padding:8px 16px;border:1px solid var(--border);border-radius:9px;background:transparent;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.nav button:disabled{opacity:.4;cursor:default}
+.nav button.primary{background:var(--amber);color:var(--bg);border-color:var(--amber);font-weight:600}
+@media(max-width:700px){.two,.grid3,.grid4{grid-template-columns:1fr}main{padding:18px 14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../../">
+    <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="tag">Training</span>
+  <span class="right"><span id="live-price">—</span> <span style="color:var(--muted)">BTC live</span></span>
+</header>
+
+<main><div class="slide" id="slide"></div></main>
+
+<footer>
+  <div class="dots" id="dots"></div>
+  <div class="nav">
+    <button id="prev">Back</button>
+    <button id="next" class="primary">Next</button>
+  </div>
+</footer>
+
+<script type="module" src="./slides.js?v=2"></script>
+</body>
+</html>
