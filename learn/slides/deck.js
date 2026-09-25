@@ -130,6 +130,7 @@ export const SLIDES = [
   <li>The order goes out with a signed price attached</li>
   <li>Every node checks that signature</li>
   <li>About ten seconds later it is agreed — or refused for being outside your limit</li>
+  <li>Then it waits, if it has to, for a trader taking the other side</li>
 </ol>
 <p class="note">This is the part people find strange, which is exactly why practice makes you sit through it.</p>`,
     },

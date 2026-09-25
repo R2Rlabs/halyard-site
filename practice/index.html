@@ -61,6 +61,14 @@ main{display:flex;gap:10px;padding:10px;align-items:flex-start}
 .side-cell.l i{background:rgba(52,199,123,.5)}
 .side-cell.s i{background:rgba(242,85,90,.5)}
 .side-cell b{font-family:var(--mono);font-weight:500;font-size:14px;white-space:nowrap}
+.bookbar{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.bookrow{display:grid;grid-template-columns:52px 1fr 64px;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.bookrow span:last-child{font-family:var(--mono);text-align:right;color:var(--soft)}
+.bar{height:9px;border-radius:4px;background:#1A2029;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:4px;transition:width .3s}
+.bar.long span{background:var(--green)}
+.bar.short span{background:var(--red)}
+.bar.wait span{background:var(--amber)}
 .ladder-foot{margin-top:13px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.55}
 @media(max-width:900px){.ladder-col{display:none}}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 0 0 1px rgba(240,166,58,.07), 0 0 20px rgba(240,166,58,.05), 0 6px 20px rgba(0,0,0,.35)}
@@ -210,6 +218,11 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
       <h2>Long and short, side by side</h2>
       <div class="ladder-head"><span>Long</span><span>Price</span><span>Short</span></div>
       <div class="ladder" id="ladder"></div>
+      <div class="bookbar">
+        <div class="bookrow"><span>Long</span><span class="bar long"><span id="bk-long"></span></span><span id="bk-longv">—</span></div>
+        <div class="bookrow"><span>Short</span><span class="bar short"><span id="bk-short"></span></span><span id="bk-shortv">—</span></div>
+        <div class="bookrow"><span>Waiting</span><span class="bar wait"><span id="bk-wait"></span></span><span id="bk-waitv">—</span></div>
+      </div>
       <div class="ladder-foot" id="ladder-foot">Profit or loss on the order you are setting up, at each price. One side&rsquo;s gain is the other side&rsquo;s loss.</div>
     </div>
   </div>
@@ -252,15 +265,15 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
 
     <div class="card" id="pending-card" hidden>
-      <h2>Filling…</h2>
-      <div class="row"><span class="muted">Time left</span><span id="pend-left">—</span></div>
+      <h2 id="pend-title">Filling…</h2>
+      <div class="row"><span class="muted" id="pend-left-k">Time left</span><span id="pend-left">—</span></div>
       <div class="row"><span class="muted">Price when you pressed</span><span id="pend-price">—</span></div>
       <div class="row"><span class="muted">Worst you accept</span><span class="amber" id="pend-worst">—</span></div>
     </div>
 
     <details class="fold">
       <summary>Why there is no order book</summary>
-      <p>Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price. That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
+      <p>Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price. That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched against simulated traders running in your own browser, so an order sometimes waits for the other side exactly as it will on the real thing.</p>
     </details>
   </div>
 </main>
@@ -270,6 +283,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./app.js?v=20"></script>
+<script type="module" src="./app.js?v=24"></script>
 </body>
 </html>

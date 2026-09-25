@@ -1,21 +1,24 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=20';
-import { createPractice, RULES } from './practice.js?v=20';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=20';
-import { loadFunding, clock } from './funding.js?v=20';
-import { createTour } from './tour.js?v=20';
+import { connectPrice } from './feed.js?v=24';
+import { createPractice, RULES } from './practice.js?v=24';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=24';
+import { clock } from './funding.js?v=24';
+import { createBook } from './book.js?v=24';
+import { createTour } from './tour.js?v=24';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
 const signed = (n) => `${n >= 0 ? '+' : ''}${money(n)}`;
 
-const practice = createPractice();
+const book = createBook();
+const practice = createPractice({ book });
 const tour = createTour(practice);
+// Handy when working on the book locally; harmless in production.
+if (location.hostname === 'localhost') window.__book = book;
 const chart = createChart($('chart'));
 let side = 1;
 let dayOpen = null;
 let timeframe = 1;   // minutes per candle
-let funding = null;
 
 // --- chart -----------------------------------------------------------------------------------
 
@@ -212,6 +215,22 @@ function renderLadder() {
 
 // --- positions and history -------------------------------------------------------------------
 
+// The book: how much of each side is open, and how many orders are still looking for a counterparty.
+function renderBook() {
+    const long = book.longQty(), short = book.shortQty();
+    const waitingOrders = book.waiting();
+    const perOrder = practice.price ? (500 * 3) / practice.price : 0.02;
+    const scale = Math.max(long, short, waitingOrders * perOrder, 0.001);
+    const w = (v) => `${Math.min(100, (v / scale) * 100)}%`;
+
+    $('bk-long').style.width = w(long);
+    $('bk-short').style.width = w(short);
+    $('bk-wait').style.width = w(waitingOrders * perOrder);
+    $('bk-longv').textContent = long.toFixed(3);
+    $('bk-shortv').textContent = short.toFixed(3);
+    $('bk-waitv').textContent = String(waitingOrders);
+}
+
 function renderPositions() {
     const { position, pending } = practice.state;
     const price = practice.price;
@@ -219,13 +238,22 @@ function renderPositions() {
 
     $('pending-card').hidden = !pending;
     if (pending) {
-        $('pend-left').textContent = `${Math.max(0, Math.ceil((pending.fillsAt - Date.now()) / 1000))}s`;
+        const settling = Date.now() < pending.fillsAt;
+        const secondsLeft = Math.max(0, Math.ceil((pending.fillsAt - Date.now()) / 1000));
+        $('pend-title').textContent = settling ? 'Settling on Trac…' : 'Waiting for the other side';
+        $('pend-left-k').textContent = settling ? 'Time left' : 'Waiting for';
+        $('pend-left').textContent = settling
+            ? `${secondsLeft}s`
+            : `${Math.round((Date.now() - pending.fillsAt) / 1000)}s`;
         $('pend-price').textContent = money(pending.submittedPrice);
         $('pend-worst').textContent = money(pending.worst);
     }
 
     if (!position) {
-        body.innerHTML = `<tr><td colspan="8" class="empty">${pending ? 'Your order is filling…' : 'Nothing open. Place an order and it fills in about ten seconds.'}</td></tr>`;
+        const note = pending
+            ? (Date.now() < pending.fillsAt ? 'Your order is settling…' : 'Settled. Now it needs a trader taking the other side.')
+            : 'Nothing open. Place an order and it fills once someone takes the other side.';
+        body.innerHTML = `<tr><td colspan="8" class="empty">${note}</td></tr>`;
         return;
     }
 
@@ -250,6 +278,8 @@ function renderHistory() {
     if (!history.length) { box.innerHTML = '<div class="empty">Your trades will appear here.</div>'; return; }
     box.innerHTML = history.slice(0, 8).map((h) => {
         const when = new Date(h.at).toLocaleTimeString();
+        if (h.kind === 'funding') return `<div class="hist"><span class="${h.paid <= 0 ? 'green' : 'red'}">Funding ${h.paid <= 0 ? 'received' : 'paid'} ${money(Math.abs(h.paid))}</span><span class="muted">${(h.rate * 100).toFixed(4)}%/h · ${when}</span></div>`;
+        if (h.kind === 'unmatched') return `<div class="hist"><span class="amber">Order expired · nobody took the other side</span><span class="muted">${money(h.submittedPrice)} · ${when}</span></div>`;
         if (h.kind === 'refused') return `<div class="hist"><span class="amber">Order refused · price passed your limit</span><span class="muted">${money(h.worst)} · ${when}</span></div>`;
         if (h.kind === 'liquidated') return `<div class="hist"><span class="red">Liquidated · lost ${money(h.collateral)}</span><span class="muted">${money(h.entry)} → ${money(h.exit)} · ${when}</span></div>`;
         return `<div class="hist"><span class="${h.pnl >= 0 ? 'green' : 'red'}">Closed ${h.side === 1 ? 'long' : 'short'} ${signed(h.pnl)}</span><span class="muted">${money(h.entry)} → ${money(h.exit)} · ${when}</span></div>`;
@@ -269,6 +299,7 @@ function renderAll(_state, _price, event) {
     }
     renderForm();
     renderLadder();
+    renderBook();
     renderPositions();
     renderHistory();
     chart.setLines(markers());
@@ -277,7 +308,9 @@ function renderAll(_state, _price, event) {
         refused: 'The price moved past your limit, so nothing opened. Your play money is untouched.',
         filled: 'Filled. Your entry and liquidation price are marked on the chart.',
         liquidated: 'Liquidated: the price reached the level where your collateral ran out. That is what it feels like.',
-        submitted: 'Submitted. It fills in about ten seconds, or not at all if the price moves too far.',
+        submitted: 'Submitted. It settles in about ten seconds, then fills when a trader takes the other side.',
+        queued: 'Settled, and now waiting for the other side. In a one-sided market, this is what happens.',
+        unmatched: 'Nobody took the other side before the order expired, so nothing opened. Your play money is untouched.',
         'stop-loss': 'Your stop-loss closed the position. That decision was made while you were calm, which is the point of it.',
         'take-profit': 'Your take-profit closed the position.',
     };
@@ -289,31 +322,30 @@ practice.subscribe(renderAll);
 // --- live price ------------------------------------------------------------------------------
 
 connectPrice({
-    onPrice: (p) => { practice.onPrice(p); chart.tick(p, timeframe); },
+    onPrice: (p) => { book.onPrice(p); practice.onPrice(p); chart.tick(p, timeframe); },
     onStatus: ({ state, source, detail }) => {
         $('feed-dot').className = state === 'live' ? 'dot' : 'dot warn';
         $('feed-status').textContent = state === 'live' ? `live · ${source}` : `${state}${detail ? ` · ${detail}` : ''}`;
     },
 });
 
-// Funding: a real rate from an existing BTC perp, refreshed every few minutes, with the countdown to
-// the hour when it would be charged.
-async function refreshFunding() {
-    try {
-        funding = await loadFunding();
-        const el = $('funding');
-        el.textContent = `${funding.rate >= 0 ? '+' : ''}${funding.rate.toFixed(4)}%`;
-        el.className = funding.rate >= 0 ? 'green' : 'red';
-        el.title = `${funding.source} BTC perp, charged every ${funding.everyHours} hours. Halyard charges hourly from its own long and short balance.`;
-    } catch {
-        $('funding').textContent = 'unavailable';
-    }
+// Funding now comes from this screen's own book rather than from somebody else's exchange: the
+// crowded side pays the quiet one, at up to 0.03% an hour, and the countdown is to the moment it is
+// actually charged to your position.
+function refreshFunding() {
+    const rate = book.funding() * 100;
+    const el = $('funding');
+    el.textContent = `${rate >= 0 ? '+' : ''}${rate.toFixed(4)}%`;
+    el.className = rate >= 0 ? 'green' : 'red';
+    el.title = rate >= 0
+        ? 'Longs are the crowded side here, so longs pay shorts. Charged to your position on the countdown.'
+        : 'Shorts are the crowded side here, so shorts pay longs. Charged to your position on the countdown.';
+    $('funding-clock').textContent = clock(book.nextFundingAt - Date.now());
 }
+setInterval(refreshFunding, 1000);
 refreshFunding();
-setInterval(refreshFunding, 180_000);
-setInterval(() => { if (funding?.nextAt) $('funding-clock').textContent = clock(funding.nextAt - Date.now()); }, 1000);
 
-setInterval(() => { practice.tick(); if (practice.state.pending) renderPositions(); }, 250);
+setInterval(() => { book.tick(); practice.tick(); if (practice.state.pending) renderPositions(); }, 250);
 renderAll();
 
 // Someone arriving for the first time gets walked through it; everyone else asks for it.

@@ -2,7 +2,7 @@
 //
 // Slides live in deck.js as functions of the price, so the deck re-renders whenever a new tick
 // arrives. Position is kept in localStorage so closing the tab does not lose your place.
-import { SLIDES } from './deck.js?v=3';
+import { SLIDES } from './deck.js?v=4';
 import { connectPrice } from '../feed.js?v=6';
 
 const $ = (id) => document.getElementById(id);

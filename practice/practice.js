@@ -18,7 +18,9 @@ export const RULES = {
 
 const STORE_KEY = 'halyard-practice-v1';
 
-export function createPractice() {
+// `book` is the simulated other side of the market (book.js). Without one, orders fill as soon as
+// they settle, which is what practice did before it had counterparties at all.
+export function createPractice({ book = null } = {}) {
     const listeners = new Set();
     let price = null;
 
@@ -69,6 +71,14 @@ export function createPractice() {
         if (state.position) {
             const p = state.position;
 
+            // Funding falls due on the book's timer: the crowded side pays the quiet one.
+            const rate = book?.fundingDue();
+            if (rate) {
+                const paid = p.side * rate * p.qty * price;
+                p.collateral -= paid;
+                state.history.unshift({ kind: 'funding', paid, rate, at: Date.now() });
+            }
+
             // Stop-loss and take-profit close before anything else, which is the point of them.
             const hitStop = p.stopLoss && (p.side === 1 ? price <= p.stopLoss : price >= p.stopLoss);
             const hitTarget = p.takeProfit && (p.side === 1 ? price >= p.takeProfit : price <= p.takeProfit);
@@ -106,6 +116,8 @@ export function createPractice() {
             worst,
             fillsAt: Date.now() + RULES.settleSeconds * 1000,
         };
+        // The order joins the book's queue, where it waits for someone taking the other side.
+        book?.submit({ side, qty: (collateral * lev) / price });
         emit({ type: 'submitted' });
         return { ok: true };
     }
@@ -118,6 +130,7 @@ export function createPractice() {
 
         const outside = pending.side === 1 ? price > pending.worst : price < pending.worst;
         if (outside) {
+            book?.withdraw();
             state.pending = null;
             state.history.unshift({
                 kind: 'refused', side: pending.side, submittedPrice: pending.submittedPrice,
@@ -125,6 +138,21 @@ export function createPractice() {
             });
             emit({ type: 'refused' });
             return;
+        }
+
+        // Settled and inside the band — but it still needs someone on the other side.
+        if (book) {
+            if (!book.queuedMine()) {
+                // It sat in the queue until it expired: nobody ever took the other end.
+                state.pending = null;
+                state.history.unshift({
+                    kind: 'unmatched', side: pending.side, submittedPrice: pending.submittedPrice,
+                    price, at: Date.now(),
+                });
+                emit({ type: 'unmatched' });
+                return;
+            }
+            if (!book.matchedMine()) { emit({ type: 'queued' }); return; }
         }
 
         const fee = pending.collateral * pending.leverage * RULES.feeRate;
