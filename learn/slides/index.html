@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Training slides — Halyard</title>
-<meta name="description" content="A guided walk through opening a long and a short on Halyard, with today's Bitcoin price. About six minutes.">
+<meta name="description" content="Every part of a trade explained with today's Bitcoin price: long, short, collateral, leverage, liquidation, stop-loss and take-profit. About ten minutes.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +37,11 @@ p{color:var(--soft);margin:0 0 14px;font-size:clamp(15px,1.7vw,17px)}
 .box .k.red{color:var(--red)}.box .k.amber{color:var(--amber)}
 .big{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--text);margin:2px 0}
 .green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+table{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:14px}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:7px 10px;border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--soft)}
+td:not(:first-child){font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
 .rail{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
 .mark{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
 .mark .v{font-family:var(--mono);font-size:20px;font-weight:600}
@@ -89,6 +94,6 @@ p{color:var(--soft);margin:0 0 14px;font-size:clamp(15px,1.7vw,17px)}
   </div>
 </main>
 
-<script type="module" src="./slides.js?v=3"></script>
+<script type="module" src="./slides.js?v=4"></script>
 </body>
 </html>
