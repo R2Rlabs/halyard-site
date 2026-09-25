@@ -93,7 +93,7 @@ export const LESSONS = [
         body: (p, calc, liq, band) => `
 <p>Halyard settles on Trac, and that takes about ten seconds. The price keeps moving while your order fills, so you tell us the worst price you will accept.</p>
 <p>At ${p} with the standard 0.5% limit, a long fills at no worse than <strong>${band(0.005)}</strong>. If the market passes that while your order is in flight, <strong>nothing opens</strong> and your money stays where it is.</p>
-<p>Beginners get a tighter 0.3% limit for their first 14 days. You can make yours tighter, never looser.</p>
+<p>Beginners get a tighter 0.3% limit for their first week. You can make yours tighter, never looser.</p>
 <p>When things really break — the price feed stops — the market stops with it, and liquidations wait fifteen minutes after it returns so you have a chance to react.</p>`,
         check: {
             question: 'Your order is filling and the price shoots past your limit. What happens?',

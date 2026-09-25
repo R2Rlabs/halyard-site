@@ -91,7 +91,7 @@ export const SLIDES = [
   <div class="box"><div class="k">0.25% — middle</div><div class="big">${m0(p * 1.0025)}</div><div>A sensible default for a calm market.</div></div>
   <div class="box"><div class="k amber">0.5% — loose</div><div class="big amber">${m0(p * 1.005)}</div><div>Almost always fills. You accept up to ${money(SIZE * 0.005)} worse on ${m0(SIZE)}.</div></div>
 </div>
-<p class="note">If the market runs past your limit while the order is in flight, <strong>nothing opens</strong> and your money stays where it is. Beginners are capped at 0.3% for their first 14 days.</p>`,
+<p class="note">If the market runs past your limit while the order is in flight, <strong>nothing opens</strong> and your money stays where it is. Beginners are capped at 0.3% for their first week.</p>`,
     },
     {
         title: 'The ten seconds',

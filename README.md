@@ -32,7 +32,7 @@ Mail sent from any new service must be added to SPF and DKIM on r2rlabs.com firs
 
 ## What the page claims, and what has to stay true
 
-- 5× maximum leverage, the experience check before a first deposit, and the 14-day beginner limits.
+- 5× maximum leverage, the experience check before a first deposit, and the one-week beginner limits.
 - No US users.
 - No promised returns, for traders or backers.
 - The proof-of-concept figures (about 5 ms, 78 tests, 0 bad updates) come from `trac-oracle-poc`.

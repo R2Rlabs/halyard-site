@@ -1,6 +1,6 @@
 // Renders the lessons and keeps track of which are finished.
-import { connectPrice } from './feed.js';
-import { LESSONS } from './lessons.js';
+import { connectPrice } from './feed.js?v=2';
+import { LESSONS } from './lessons.js?v=2';
 
 const STORE = 'halyard-learn-v1';
 const $ = (id) => document.getElementById(id);
