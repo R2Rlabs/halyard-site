@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn — Halyard</title>
+<meta name="description" content="Six short lessons on leverage, liquidation, funding and stop-losses, using live BTC prices. Free, no account, about fifteen minutes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.right{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--muted)}
+.price{font-family:var(--mono)}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.15;font-weight:600;margin:0 0 8px}
+.lead{color:var(--soft);font-size:17px;margin:0 0 10px}
+.progress{display:flex;gap:6px;margin:22px 0 26px}
+.tick{flex:1;height:4px;border-radius:2px;background:var(--border)}
+.tick.done{background:var(--green)}
+.tick.current{background:var(--amber)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px}
+.card h2{font-size:20px;font-weight:600;margin:0 0 4px}
+.meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+.card p{color:var(--soft);margin:0 0 14px}
+table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);font-weight:500;font-size:12px}
+td:not(:first-child){font-family:var(--mono)}
+.muted{color:var(--muted)}
+.check{border-top:1px solid var(--border);padding-top:16px;margin-top:6px}
+.check .q{font-weight:600;margin-bottom:10px}
+.opt{display:block;width:100%;text-align:left;padding:11px 13px;margin-bottom:7px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.opt:hover{border-color:#39424f}
+.opt.right{border-color:var(--green);background:rgba(52,199,123,.1)}
+.opt.wrong{border-color:var(--red);background:rgba(242,85,90,.1)}
+.why{font-size:14px;color:var(--soft);margin-top:10px;padding-left:12px;border-left:2px solid var(--amber)}
+.done-note{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--green);margin-top:12px}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.btn{display:inline-block;padding:12px 18px;border-radius:11px;background:var(--amber);color:var(--bg);font-weight:600;font-size:15px;text-decoration:none}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+footer{border-top:1px solid var(--border);padding:22px 16px 60px;color:var(--muted);font-size:12px;line-height:1.6}
+footer .wrap{padding:0;max-width:760px}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="pill">Learn</span>
+  <span class="right"><span class="price" id="live-price">—</span> <span class="muted">BTC/USD live</span></span>
+</header>
+
+<div class="wrap">
+  <h1>Six lessons, about fifteen minutes</h1>
+  <p class="lead">Every number below uses the live BTC price, so nothing here is hypothetical. Free, no account, and nothing to deposit.</p>
+  <div class="progress" id="progress"></div>
+  <div id="lessons"></div>
+
+  <div class="card" id="finish" hidden>
+    <h2>That is the whole thing</h2>
+    <p>You now know more about how these products work than most people who trade them. The next step is to feel it rather than read it: open a position in practice, watch the liquidation price move, and let one go against you on purpose.</p>
+    <div class="cta">
+      <a class="btn" href="../practice/">Practice with 10,000 play USDT</a>
+      <a class="btn ghost" href="../#waitlist">Join the waitlist</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    Prices come from Coinbase or Kraken for teaching. Real trading uses Pyth prices with signatures checked on-chain by every Halyard node.<br>
+    Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
+  </div>
+</footer>
+
+<script type="module" src="./learn.js"></script>
+</body>
+</html>
