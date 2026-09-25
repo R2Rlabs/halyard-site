@@ -83,7 +83,7 @@ footer a{color:var(--muted)}
       <a href="#safety">Safety</a>
       <a href="#trust">Trust</a>
       <a href="#fund">Insurance fund</a>
-      <a href="#waitlist">Waitlist</a>
+      <a href="../learn/">Learn</a>
     </nav>
   </div>
 </header>
@@ -185,18 +185,12 @@ footer a{color:var(--muted)}
   </div>
 </section>
 
-<section id="waitlist">
+<section id="start">
   <div class="wrap">
-    <div class="eyebrow">Waitlist</div>
-    <h2>Be told when real trading opens</h2>
-    <p class="lead">The lessons and practice are open now, free and with no deposit. Leave an address and we will email once, when real trading opens. Nothing else.</p>
-    <form id="waitlist-form" method="post" action="">
-      <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required autocomplete="email">
-      <button class="btn" type="submit">Join the waitlist</button>
-      <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <label class="consent"><input type="checkbox" name="in_us"> I am in the United States. Send me practice and lesson news only.</label>
-    </form>
-    <p class="formnote" id="formnote">We store your address to send those emails and nothing else. Unsubscribe any time. See the <a ../privacy.html>privacy page</a> for who stores it.</p>
+    <div class="eyebrow">Start now</div>
+    <h2>The lessons and practice are open</h2>
+    <p class="lead">Free, no account, no deposit, and nothing to sign up for. Real trading opens when the contract is audited and the insurance fund is funded; until then everything on this site is yours to use.</p>
+    <p style="margin-top:18px"><a class="btn" href="../">Open the trading screen</a> <a class="btn ghost" href="../learn/">Start the lessons</a></p>
   </div>
 </section>
 
@@ -219,57 +213,6 @@ footer a{color:var(--muted)}
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Waitlist.
-//
-// ENDPOINT takes a URL that accepts a JSON POST of {email, source}. Formspree gives you one at
-// https://formspree.io/f/XXXXXXXX; Buttondown, Tally and a handler of your own work the same way.
-// Whatever you use stores real people's addresses, so name it on privacy.html before you switch it on.
-//
-// While ENDPOINT is empty the form opens the visitor's email app instead, so no address is lost.
-var ENDPOINT = '';
-
-var form = document.getElementById('waitlist-form');
-var note = document.getElementById('formnote');
-var noteText = note.innerHTML;
-
-function say(html, colour) {
-  note.innerHTML = html;
-  note.style.color = colour || '';
-}
-
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
-  var email = form.email.value.trim();
-  if (!email) return;
-  if (form.company.value) return;           // a bot filled the hidden field
-
-  if (!ENDPOINT) {
-    window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' +
-      encodeURIComponent('Please add ' + email + ' to the Halyard waitlist.');
-    say('Opening your email app. Send that message and you are on the list.');
-    return;
-  }
-
-  var button = form.querySelector('button');
-  button.disabled = true;
-  button.textContent = 'Adding you…';
-  say(noteText);
-
-  fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email: email, source: 'halyard-landing', in_us: form.in_us.checked })
-  }).then(function (r) {
-    if (!r.ok) throw new Error('status ' + r.status);
-    form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You are on the list. ' +
-      'We will email when practice mode opens, and once more before real trading does.</p>';
-    say('Nothing else, and we do not share your address.');
-  }).catch(function () {
-    button.disabled = false;
-    button.textContent = 'Join the waitlist';
-    say('That did not go through. Email <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a> and we will add you by hand.', 'var(--red)');
-  });
-});
 </script>
 </body>
 </html>
