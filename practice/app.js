@@ -1,7 +1,7 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js';
-import { createPractice, RULES } from './practice.js';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js';
+import { connectPrice } from './feed.js?v=3';
+import { createPractice, RULES } from './practice.js?v=3';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
