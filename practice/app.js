@@ -1,9 +1,9 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=9';
-import { createPractice, RULES } from './practice.js?v=9';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=9';
-import { loadFunding, clock } from './funding.js?v=9';
-import { createTour } from './tour.js?v=9';
+import { connectPrice } from './feed.js?v=13';
+import { createPractice, RULES } from './practice.js?v=13';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=13';
+import { loadFunding, clock } from './funding.js?v=13';
+import { createTour } from './tour.js?v=13';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -71,12 +71,11 @@ function renderForm() {
     $('sum-size').textContent = `${money(size)} USDT`;
     $('sum-fee').textContent = `${money(size * RULES.feeRate)} USDT`;
 
-    // A trader may tighten the band but never widen it, so the beginner cap simply removes options.
+    // A trader may tighten the band but never widen it: loosening it is the direction that can hurt them.
     for (const b of document.querySelectorAll('#bands button')) {
         const value = Number(b.dataset.b);
         b.disabled = value > practice.maxBand();
         b.classList.toggle('on', !b.disabled && Math.abs(value - band) < 1e-9);
-        b.title = b.disabled ? `Beginner mode keeps this at ${(practice.maxBand() * 100).toFixed(1)}% or tighter` : '';
     }
 
     if (price && collateral > 0) {
@@ -131,8 +130,49 @@ for (const b of document.querySelectorAll('#bands button')) {
 }
 
 $('reset-btn').onclick = () => { if (confirm('Start again with 10,000 play USDT?')) practice.reset(); };
-$('beginner-toggle').onchange = (e) => practice.setBeginner(e.target.checked);
 $('tour-btn').onclick = () => tour.start();
+
+// --- the ladder ---------------------------------------------------------------------------------
+//
+// Where another exchange shows resting buy and sell orders, we show the thing that actually exists
+// here: what a long and a short of this size are worth at each price. They are mirror images,
+// because in a matched book one side's gain is the other side's loss, to the cent.
+
+const LADDER_ROWS = 15;
+const LADDER_STEP = 0.004;   // 0.4% a rung, so the ladder spans about 3% either way
+
+function renderLadder() {
+    const price = practice.price;
+    if (!price) return;
+
+    const position = practice.state.position;
+    const { collateral } = formValues();
+    const lev = Number(leverageInput.value);
+    // An open position is shown as it really is; otherwise the order currently being set up.
+    const qty = position ? position.qty : (collateral * lev) / price;
+    const entry = position ? position.entry : price;
+
+    const rows = [];
+    const half = Math.floor(LADDER_ROWS / 2);
+    for (let i = half; i >= -half; i--) {
+        const at = price * (1 + i * LADDER_STEP);
+        rows.push({ at, pnl: qty * (at - entry), here: i === 0 });
+    }
+    const biggest = Math.max(...rows.map((r) => Math.abs(r.pnl)), 1e-9);
+    const bar = (v) => `${Math.min(40, (Math.abs(v) / biggest) * 40)}%`;   // leave room for the number
+    const tag = (v) => (Math.abs(v) < 0.005 ? '' : `${v > 0 ? '+' : '−'}${money(Math.abs(v))}`);
+
+    $('ladder').innerHTML = rows.map((r) => `
+      <div class="rung${r.here ? ' here' : ''}">
+        <span class="side-cell l">${r.pnl > 0 ? `<b class="green">${tag(r.pnl)}</b><i style="width:${bar(r.pnl)}"></i>` : `<b class="red">${tag(r.pnl)}</b>`}</span>
+        <span class="px">${money(r.at, 0)}</span>
+        <span class="side-cell s">${r.pnl < 0 ? `<i style="width:${bar(r.pnl)}"></i><b class="green">${tag(-r.pnl)}</b>` : `<b class="red">${tag(-r.pnl)}</b>`}</span>
+      </div>`).join('');
+
+    $('ladder-foot').innerHTML = position
+        ? `Your ${position.side === 1 ? 'long' : 'short'} against the trader on the other side. Liquidation at <span class="red">${money(practice.liquidationPrice(position), 0)}</span>.`
+        : `Profit or loss on the ${money(collateral * lev, 0)} USDT order you are setting up. One side&rsquo;s gain is the other side&rsquo;s loss.`;
+}
 
 // --- positions and history -------------------------------------------------------------------
 
@@ -192,6 +232,7 @@ function renderAll(_state, _price, event) {
         }
     }
     renderForm();
+    renderLadder();
     renderPositions();
     renderHistory();
     chart.setLines(markers());

@@ -37,6 +37,20 @@ export const SLIDES = [
 <p class="note">Nothing is lent to you, and there is no pool paying the winners. Every dollar you make comes from the other side of your trade.</p>`,
     },
     {
+        title: 'Who is on the other side',
+        body: (p) => `
+<p>An order book exists to <em>discover</em> a price. Halyard imports one instead — Pyth publishes it, every node checks the signature — so there is nothing to haggle over and no ladder to read. Matching is about <strong>quantity</strong>, not price.</p>
+<p>Open a 5× long on ${money(COLLATERAL)} at ${m0(p)} and the contract needs ${(SIZE / p).toFixed(4)} BTC of short against it. Not from one person: five traders shorting ${m0(COLLATERAL)} each will do. Your position faces the book, never a human you could name.</p>
+<table>
+  <tr><th>What someone does</th><th>Effect on the book</th></tr>
+  <tr><td>Opens a long</td><td class="green">+</td></tr>
+  <tr><td>Closes a short</td><td class="green">+</td></tr>
+  <tr><td>Opens a short</td><td class="red">−</td></tr>
+  <tr><td>Closes a long</td><td class="red">−</td></tr>
+</table>
+<p class="note">A match pairs a <span class="green">+</span> with a <span class="red">−</span>, so you are never waiting for the person you opened against — anyone moving the book the other way will do. When the two sides do not balance, the unpopular side fills freely, the crowded side fills as far as the insurance fund can back it, and the rest <strong>waits rather than filling at a bad price</strong>. Funding is what pays someone to take the quiet side. <a href="../simulation/">Watch it happen →</a></p>`,
+    },
+    {
         title: 'The screen, in four parts',
         body: () => `
 <div class="grid4">
@@ -91,7 +105,7 @@ export const SLIDES = [
   <div class="box"><div class="k">0.25% — middle</div><div class="big">${m0(p * 1.0025)}</div><div>A sensible default for a calm market.</div></div>
   <div class="box"><div class="k amber">0.5% — loose</div><div class="big amber">${m0(p * 1.005)}</div><div>Almost always fills. You accept up to ${money(SIZE * 0.005)} worse on ${m0(SIZE)}.</div></div>
 </div>
-<p class="note">If the market runs past your limit while the order is in flight, <strong>nothing opens</strong> and your money stays where it is. Beginners are capped at 0.3% for their first week.</p>`,
+<p class="note">If the market runs past your limit while the order is in flight, <strong>nothing opens</strong> and your money stays where it is.</p>`,
     },
     {
         title: 'The ten seconds',

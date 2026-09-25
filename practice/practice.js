@@ -12,15 +12,13 @@ export const RULES = {
     feeRate: 0.0006,          // 0.06% to open and to close
     maintenanceMargin: 0.01,  // liquidated when equity falls to 1% of position size
     settleSeconds: 10,        // measured on Trac: 8-11s warm
-    defaultBand: 0.005,       // 0.5%, the specced default
-    beginnerBand: 0.003,      // beginners keep a tighter one
+    defaultBand: 0.005,       // 0.5%, the widest the rules allow; a trader may choose tighter
     maxLeverage: 5,
-    beginnerLeverage: 2,
 };
 
 const STORE_KEY = 'halyard-practice-v1';
 
-export function createPractice({ beginner = false } = {}) {
+export function createPractice() {
     const listeners = new Set();
     let price = null;
 
@@ -29,7 +27,6 @@ export function createPractice({ beginner = false } = {}) {
         position: null,
         pending: null,
         history: [],
-        beginner,
         slippage: RULES.defaultBand,
     });
 
@@ -50,11 +47,11 @@ export function createPractice({ beginner = false } = {}) {
 
     const emit = (event) => { save(); for (const fn of listeners) fn(state, price, event); };
 
-    const maxLeverage = () => (state.beginner ? RULES.beginnerLeverage : RULES.maxLeverage);
+    const maxLeverage = () => RULES.maxLeverage;
 
     // The widest move the rules will ever let an order fill through. A trader may choose tighter than
     // this but never wider: loosening it is the one direction that can hurt them.
-    const maxBand = () => (state.beginner ? RULES.beginnerBand : RULES.defaultBand);
+    const maxBand = () => RULES.defaultBand;
     const band = () => Math.min(state.slippage ?? maxBand(), maxBand());
     const worstPrice = (side, at = price) => (side === 1 ? at * (1 + band()) : at * (1 - band()));
 
@@ -169,11 +166,6 @@ export function createPractice({ beginner = false } = {}) {
         emit({ type: 'reset' });
     }
 
-    function setBeginner(on) {
-        state.beginner = !!on;
-        emit({ type: 'mode' });
-    }
-
     function setSlippage(fraction) {
         state.slippage = Math.min(Math.max(0.0005, Number(fraction) || RULES.defaultBand), RULES.defaultBand);
         emit({ type: 'slippage' });
@@ -181,7 +173,7 @@ export function createPractice({ beginner = false } = {}) {
 
     return {
         RULES,
-        onPrice, submit, tick, close, reset, setBeginner, setSlippage,
+        onPrice, submit, tick, close, reset, setSlippage,
         subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
         get state() { return state; },
         get price() { return price; },

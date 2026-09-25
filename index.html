@@ -36,6 +36,23 @@ nav a.on{color:var(--text);background:#1C222B}
 main{display:flex;gap:10px;padding:10px;align-items:flex-start}
 .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
 .side-col{width:316px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.ladder-col{width:252px;flex-shrink:0}
+.ladder{display:flex;flex-direction:column;gap:1px}
+.ladder-head{display:grid;grid-template-columns:1fr 62px 1fr;gap:6px;font-size:10px;color:var(--muted);margin-bottom:5px}
+.ladder-head span:first-child{text-align:right}
+.ladder-head span:nth-child(2){text-align:center}
+.rung{display:grid;grid-template-columns:1fr 62px 1fr;align-items:center;gap:6px;height:19px;font-size:11px}
+.rung .px{font-family:var(--mono);text-align:center;color:var(--muted);font-size:11px}
+.rung.here{background:rgba(240,166,58,.09);border-radius:4px}
+.rung.here .px{color:var(--amber);font-weight:600}
+.side-cell{display:flex;align-items:center;gap:5px;height:13px;overflow:hidden}
+.side-cell.l{justify-content:flex-end}
+.side-cell i{display:block;height:100%;border-radius:3px;flex-shrink:0}
+.side-cell.l i{background:rgba(52,199,123,.5)}
+.side-cell.s i{background:rgba(242,85,90,.5)}
+.side-cell b{font-family:var(--mono);font-weight:500;font-size:10px;white-space:nowrap}
+.ladder-foot{margin-top:9px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.5}
+@media(max-width:980px){.ladder-col{display:none}}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
 .card h2{font-size:14px;font-weight:600;margin:0 0 10px}
 #chart-wrap{position:relative;height:min(58vh,520px);min-height:320px;padding:10px 10px 4px}
@@ -87,8 +104,6 @@ button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;b
 .fold summary::before{content:"+";color:var(--amber);margin-right:7px;font-family:var(--mono)}
 .fold[open] summary::before{content:"−"}
 .fold p{margin:9px 0 2px;font-size:12px;color:var(--muted);line-height:1.55}
-.beginner{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--soft);margin:10px 0 0;padding-top:9px;border-top:1px solid var(--border)}
-.beginner input{accent-color:var(--amber)}
 
 .strip{padding:8px 16px;border-bottom:1px solid var(--border);background:rgba(240,166,58,.07);color:var(--soft);font-size:12px}
 /* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
@@ -178,6 +193,15 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
     </div>
   </div>
 
+  <div class="ladder-col">
+    <div class="card">
+      <h2>Long and short, side by side</h2>
+      <div class="ladder-head"><span>Long</span><span>Price</span><span>Short</span></div>
+      <div class="ladder" id="ladder"></div>
+      <div class="ladder-foot" id="ladder-foot">Profit or loss on the order you are setting up, at each price. One side&rsquo;s gain is the other side&rsquo;s loss.</div>
+    </div>
+  </div>
+
   <div class="side-col">
     <div class="card">
       <h2>Open a position</h2>
@@ -212,7 +236,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
       <button class="primary" id="submit-btn">Open long</button>
       <div class="note" id="order-note">Fills take about ten seconds, the same as settling on Trac. If the price passes your limit, nothing opens.</div>
-      <label class="beginner"><input type="checkbox" id="beginner-toggle"> Trade as a beginner — 2× and a 0.3% limit</label>
     </div>
 
 
@@ -227,10 +250,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
       <summary>Why there is no order book</summary>
       <p>Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price. That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
     </details>
-    <details class="fold">
-      <summary>Beginner limits</summary>
-      <p>On the real thing, your first week is capped at 2×, with a tighter 0.3% price limit and no more than 1,000 USDT deposited in total.</p>
-    </details>
   </div>
 </main>
 
@@ -239,6 +258,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./practice/app.js?v=9"></script>
+<script type="module" src="./practice/app.js?v=13"></script>
 </body>
 </html>

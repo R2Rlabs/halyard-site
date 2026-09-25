@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market simulation — Halyard</title>
+<meta name="description" content="Watch a matched-book market run: what happens when everyone wants to be long, who takes the other side, and what funding and the insurance fund actually do.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:52px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;text-decoration:none;color:var(--text)}
+.tag{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.right{margin-left:auto;display:flex;gap:14px;align-items:center;font-size:12px;color:var(--muted)}
+
+.intro{max-width:1180px;margin:0 auto;padding:22px 14px 4px}
+h1{font-size:clamp(23px,3.2vw,30px);font-weight:600;margin:0 0 8px}
+.lead{color:var(--soft);font-size:15px;max-width:760px;margin:0 0 4px}
+main{max-width:1180px;margin:0 auto;padding:14px;display:flex;gap:12px;align-items:flex-start}
+.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.side{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:13px}
+.card h2{font-size:13px;font-weight:600;margin:0 0 10px}
+
+#chart-wrap{position:relative;height:210px;padding:8px}
+#chart{width:100%;height:100%;display:block}
+
+.story{border-left:3px solid var(--amber);background:var(--panel2);border-radius:0 10px 10px 0;padding:12px 14px;font-size:14px;color:var(--soft);line-height:1.6;min-height:62px}
+.story strong{color:var(--text)}
+
+.books{display:flex;flex-direction:column;gap:9px}
+.book{display:grid;grid-template-columns:96px 1fr 84px;align-items:center;gap:10px;font-size:12px}
+.book .k{color:var(--muted)}
+.book .v{font-family:var(--mono);text-align:right}
+.bar{height:20px;border-radius:5px;background:#1A2029;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:5px;transition:width .25s}
+.bar.long span{background:var(--green)}
+.bar.short span{background:var(--red)}
+.bar.wait span{background:var(--amber)}
+.bar.fund span{background:#5B7FD6}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.stat .k{font-size:11px;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-size:17px;font-weight:600;margin-top:2px}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.muted{color:var(--muted)}
+
+label{display:block;font-size:11px;color:var(--muted);margin:11px 0 5px}
+label:first-of-type{margin-top:0}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.seg{display:flex;gap:4px}
+.seg button{flex:1;padding:7px 0;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.seg button.on{border-color:var(--amber);color:var(--amber);background:rgba(240,166,58,.08)}
+.controls{display:flex;gap:7px;margin-top:14px}
+.controls button{flex:1;height:38px;border:none;border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--amber);color:var(--bg)}
+.controls button.ghost{background:transparent;border:1px solid var(--border);color:var(--text);font-weight:400}
+
+/* Longs on the left, shorts on the right, price down the middle. */
+.ladder{display:flex;flex-direction:column;gap:2px;font-size:12px}
+.rung{display:grid;grid-template-columns:1fr 78px 1fr;align-items:center;gap:8px;height:20px}
+.rung .px{font-family:var(--mono);text-align:center;color:var(--muted);font-size:11px}
+.rung.here .px{color:var(--amber);font-weight:600}
+.rung.here{background:rgba(240,166,58,.07);border-radius:5px}
+.lg,.sh{display:flex;align-items:center;gap:6px;height:14px}
+.lg{justify-content:flex-end}
+.lg i,.sh i{display:block;height:100%;border-radius:3px;font-style:normal}
+.lg i{background:var(--green)}
+.sh i{background:var(--red)}
+.lg b,.sh b{font-family:var(--mono);font-weight:500;font-size:11px;color:var(--soft);min-width:14px}
+.ladder-head{display:grid;grid-template-columns:1fr 78px 1fr;gap:8px;font-size:11px;color:var(--muted);margin-bottom:5px}
+.ladder-head span:first-child{text-align:right}
+.log{max-height:190px;overflow-y:auto;font-size:12px}
+.log div{display:flex;gap:9px;padding:5px 0;border-bottom:1px solid var(--border);color:var(--soft)}
+.log .h{font-family:var(--mono);color:var(--muted);flex-shrink:0}
+.log .bad{color:var(--red)}.log .warn{color:var(--amber)}.log .good{color:var(--green)}
+
+footer{max-width:1180px;margin:0 auto;padding:10px 14px 50px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:900px){main{flex-direction:column}.side{width:100%}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../">
+    <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="tag">Simulation</span>
+  <span class="right"><span id="live-price">—</span> <span>BTC live · the starting price</span></span>
+</header>
+
+<div class="intro">
+  <h1>Who takes the other side?</h1>
+  <p class="lead">Every long here is paired with shorts of the same size. Turn the crowd bullish and watch what happens: orders stop filling, funding climbs until it pays someone to take the quiet side, and the insurance fund stands behind whatever gap is left. One step is one hour.</p>
+</div>
+
+<main>
+  <div class="left">
+    <div class="card" id="chart-wrap"><canvas id="chart"></canvas></div>
+    <div class="story" id="story">Press <strong>Run</strong> and watch the book.</div>
+
+    <div class="card">
+      <h2>The book right now</h2>
+      <div class="books">
+        <div class="book"><span class="k">Long</span><span class="bar long"><span id="bar-long" style="width:0"></span></span><span class="v" id="v-long">0</span></div>
+        <div class="book"><span class="k">Short</span><span class="bar short"><span id="bar-short" style="width:0"></span></span><span class="v" id="v-short">0</span></div>
+        <div class="book"><span class="k">Waiting</span><span class="bar wait"><span id="bar-wait" style="width:0"></span></span><span class="v" id="v-wait">0</span></div>
+        <div class="book"><span class="k">Fund can back</span><span class="bar fund"><span id="bar-fund" style="width:0"></span></span><span class="v" id="v-fund">0</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Where positions get forced out <span class="muted" style="font-weight:400">· not an order book: these are liquidation levels, not resting orders</span></h2>
+      <div class="ladder" id="ladder"></div>
+    </div>
+
+    <div class="card">
+      <h2>What happened</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <h2>The crowd</h2>
+      <label for="bullish">How many want to be long · <span id="bullish-label">75%</span></label>
+      <input type="range" id="bullish" min="50" max="98" step="1" value="75">
+      <label for="traders">Traders · <span id="traders-label">60</span></label>
+      <input type="range" id="traders" min="20" max="200" step="10" value="60">
+      <label for="fund">Insurance fund · <span id="fund-label">5,000</span></label>
+      <input type="range" id="fund" min="0" max="25000" step="1000" value="5000">
+      <label>Market</label>
+      <div class="seg" id="market">
+        <button data-m="calm">Calm</button><button data-m="normal" class="on">Normal</button><button data-m="falling">Falling hard</button>
+      </div>
+      <div class="controls">
+        <button id="run">Run</button>
+        <button id="step" class="ghost">Step</button>
+        <button id="reset" class="ghost">Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>After <span id="hours">0</span> hours</h2>
+      <div class="stats">
+        <div class="stat"><div class="k">Filled</div><div class="v" id="s-filled">0</div></div>
+        <div class="stat"><div class="k">Still waiting</div><div class="v amber" id="s-waiting">0</div></div>
+        <div class="stat"><div class="k">Gave up</div><div class="v" id="s-cancelled">0</div></div>
+        <div class="stat"><div class="k">Liquidated</div><div class="v red" id="s-liq">0</div></div>
+        <div class="stat"><div class="k">Funding · per hour</div><div class="v" id="s-funding">0.0000%</div></div>
+        <div class="stat"><div class="k">Insurance fund</div><div class="v" id="s-fund">0</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What to try</h2>
+      <p style="margin:0 0 7px;font-size:12px;color:var(--soft);line-height:1.6">Push the crowd to 95% long. Most orders stop filling, because there is nobody to pair them with — they wait rather than fill at a bad price.</p>
+      <p style="margin:0 0 7px;font-size:12px;color:var(--soft);line-height:1.6">Now drag the fund to 25,000. More of the gap can be backed, so more orders fill. That is what the fund buys.</p>
+      <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.6">Then set the market to falling hard and watch who gets liquidated, and what it costs the fund.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  A teaching model, not a forecast: prices are random, every trader risks the same 500 at 5×, and real markets are messier. The rules it follows — pairing by quantity, funding at up to 0.03% an hour, the fund backing an imbalance as if the price could move 20% against it — are Halyard's own.
+  <a href="../slides/">Back to the guide</a> · <a href="../../">Open the trading screen</a>
+</footer>
+
+<script type="module" src="./sim-app.js?v=7"></script>
+</body>
+</html>
