@@ -35,31 +35,34 @@ nav a.on{color:var(--text);background:#1C222B}
 
 main{display:flex;gap:10px;padding:10px;align-items:flex-start}
 .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.side-col{width:316px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
-.ladder-col{width:252px;flex-shrink:0}
-.ladder{display:flex;flex-direction:column;gap:1px}
-.ladder-head{display:grid;grid-template-columns:1fr 62px 1fr;gap:6px;font-size:10px;color:var(--muted);margin-bottom:5px}
+.side-col{width:296px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.ladder-col{width:358px;flex-shrink:0}
+.ladder{display:flex;flex-direction:column;gap:3px}
+.ladder-head{display:grid;grid-template-columns:1fr 86px 1fr;gap:10px;font-size:12px;color:var(--muted);margin-bottom:9px}
 .ladder-head span:first-child{text-align:right}
 .ladder-head span:nth-child(2){text-align:center}
-.rung{display:grid;grid-template-columns:1fr 62px 1fr;align-items:center;gap:6px;height:19px;font-size:11px}
-.rung .px{font-family:var(--mono);text-align:center;color:var(--muted);font-size:11px}
+.rung{display:grid;grid-template-columns:1fr 86px 1fr;align-items:center;gap:10px;height:31px;font-size:15px}
+.rung .px{font-family:var(--mono);text-align:center;color:var(--muted);font-size:15px}
 .rung.here{background:rgba(240,166,58,.09);border-radius:4px}
 .rung.here .px{color:var(--amber);font-weight:600}
-.side-cell{display:flex;align-items:center;gap:5px;height:13px;overflow:hidden}
+.side-cell{display:flex;align-items:center;gap:7px;height:22px;overflow:hidden}
 .side-cell.l{justify-content:flex-end}
 .side-cell i{display:block;height:100%;border-radius:3px;flex-shrink:0}
 .side-cell.l i{background:rgba(52,199,123,.5)}
 .side-cell.s i{background:rgba(242,85,90,.5)}
-.side-cell b{font-family:var(--mono);font-weight:500;font-size:10px;white-space:nowrap}
-.ladder-foot{margin-top:9px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);line-height:1.5}
-@media(max-width:980px){.ladder-col{display:none}}
+.side-cell b{font-family:var(--mono);font-weight:500;font-size:14px;white-space:nowrap}
+.ladder-foot{margin-top:13px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.55}
+@media(max-width:900px){.ladder-col{display:none}}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
 .card h2{font-size:14px;font-weight:600;margin:0 0 10px}
+.ladder-col .card h2{font-size:15px;margin-bottom:12px}
 #chart-wrap{position:relative;height:min(58vh,520px);min-height:320px;padding:10px 10px 4px}
 #chart{width:100%;height:100%;display:block}
 .chart-note{position:absolute;left:16px;top:14px;font-size:11px;color:var(--muted)}
 
 table{width:100%;border-collapse:collapse;font-size:13px}
+.tablewrap{overflow-x:auto}
+.tablewrap table{min-width:540px}
 th{text-align:left;font-weight:500;font-size:11px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
 td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
 td.name{font-family:inherit;font-weight:600}
@@ -180,10 +183,12 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
     <div class="card">
       <h2>Your position</h2>
+      <div class="tablewrap">
       <table>
         <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Collateral</th><th>Entry</th><th>Liquidation</th><th>Profit / loss</th><th></th></tr></thead>
         <tbody id="positions-body"><tr><td colspan="8" class="empty">Nothing open. Place an order and it fills in about ten seconds.</td></tr></tbody>
       </table>
+      </div>
     </div>
 
     <div class="card">
@@ -258,6 +263,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./practice/app.js?v=13"></script>
+<script type="module" src="./practice/app.js?v=18"></script>
 </body>
 </html>

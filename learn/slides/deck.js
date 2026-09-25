@@ -39,7 +39,7 @@ export const SLIDES = [
     {
         title: 'Who is on the other side',
         body: (p) => `
-<p>An order book exists to <em>discover</em> a price. Halyard imports one instead — Pyth publishes it, every node checks the signature — so there is nothing to haggle over and no ladder to read. Matching is about <strong>quantity</strong>, not price.</p>
+<p>An order book exists to <em>discover</em> a price. Halyard imports one instead — Pyth publishes it, every node checks the signature — so there is nothing to haggle over and no queue of bids and offers to read. Matching is about <strong>quantity</strong>, not price.</p>
 <p>Open a 5× long on ${money(COLLATERAL)} at ${m0(p)} and the contract needs ${(SIZE / p).toFixed(4)} BTC of short against it. Not from one person: five traders shorting ${m0(COLLATERAL)} each will do. Your position faces the book, never a human you could name.</p>
 <table>
   <tr><th>What someone does</th><th>Effect on the book</th></tr>
@@ -51,15 +51,29 @@ export const SLIDES = [
 <p class="note">A match pairs a <span class="green">+</span> with a <span class="red">−</span>, so you are never waiting for the person you opened against — anyone moving the book the other way will do. When the two sides do not balance, the unpopular side fills freely, the crowded side fills as far as the insurance fund can back it, and the rest <strong>waits rather than filling at a bad price</strong>. Funding is what pays someone to take the quiet side. <a href="../simulation/">Watch it happen →</a></p>`,
     },
     {
-        title: 'The screen, in four parts',
+        title: 'The screen, in five parts',
         body: () => `
 <div class="grid4">
   <div class="box"><div class="k">Market bar</div><div>Price, 24h change, and funding with a countdown to when it is charged.</div></div>
   <div class="box"><div class="k">Chart</div><div>Candles from one minute to six hours. Your entry, liquidation, stop-loss and take-profit are drawn on it.</div></div>
   <div class="box"><div class="k">Order panel</div><div>Side, collateral, leverage, the worst price you accept, and your exits.</div></div>
+  <div class="box"><div class="k">Ladder</div><div>What a long and a short of your size are worth at each price, longs left and shorts right.</div></div>
   <div class="box"><div class="k">Positions</div><div>What you hold, what it is worth right now, and where it would be liquidated.</div></div>
 </div>
-<p class="note">There is no order book, because Halyard has no limit orders: you trade at the oracle price, matched against the other side.</p>`,
+<p class="note">None of that is an order book: Halyard has no limit orders, so there are no resting bids and offers to show. You trade at the oracle price, matched against the other side.</p>`,
+    },
+
+    {
+        title: 'Reading the ladder',
+        body: (p) => `
+<p>The column beside the chart is where another exchange puts its order book. Ours holds something real instead: <strong>what a long and a short of your size are worth at every price near this one</strong>.</p>
+<div class="rail">
+  <div class="mark high"><div class="v green">+${money(SIZE * 0.014)}</div><div class="k">${m0(p * 1.014)} — a long is up this much here, and a short is down the same</div></div>
+  <div class="mark"><div class="v amber">${m0(p)}</div><div class="k">the price right now, highlighted</div></div>
+  <div class="mark low"><div class="v red">−${money(SIZE * 0.014)}</div><div class="k">${m0(p * 0.986)} — now the long is down and the short is up</div></div>
+</div>
+<p>The two sides are exact mirrors, to the cent, because that is what a matched book <em>is</em>: your gain is the money the other side lost.</p>
+<p class="note"><strong>Use it to set your exits.</strong> Find a loss on the left you could live with, read the price beside it — that is where your stop-loss goes. Do the same with a gain for your take-profit. The rungs are 0.35% apart and cover about 3% either way, so this is the next hour or two, not where liquidation sits: that is marked on the chart.</p>`,
     },
 
     { kind: 'divider', title: 'Part one: a long', sub: 'Betting the price goes up' },

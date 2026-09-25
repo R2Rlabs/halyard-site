@@ -1,9 +1,9 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=13';
-import { createPractice, RULES } from './practice.js?v=13';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=13';
-import { loadFunding, clock } from './funding.js?v=13';
-import { createTour } from './tour.js?v=13';
+import { connectPrice } from './feed.js?v=18';
+import { createPractice, RULES } from './practice.js?v=18';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=18';
+import { loadFunding, clock } from './funding.js?v=18';
+import { createTour } from './tour.js?v=18';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -138,8 +138,13 @@ $('tour-btn').onclick = () => tour.start();
 // here: what a long and a short of this size are worth at each price. They are mirror images,
 // because in a matched book one side's gain is the other side's loss, to the cent.
 
-const LADDER_ROWS = 15;
-const LADDER_STEP = 0.004;   // 0.4% a rung, so the ladder spans about 3% either way
+const LADDER_ROWS = 19;
+const LADDER_TICKS = [5, 10, 25, 50, 100, 250, 500, 1000];   // the rung sizes we are willing to use
+
+// The rungs sit on fixed round prices and stay put, so the highlight travels up and down them as the
+// market moves. Recomputing every rung from the live price instead would make all nineteen numbers
+// churn on every tick, which is unreadable and tells you nothing about which way the price is going.
+let ladderAnchor = null;
 
 function renderLadder() {
     const price = practice.price;
@@ -152,12 +157,21 @@ function renderLadder() {
     const qty = position ? position.qty : (collateral * lev) / price;
     const entry = position ? position.entry : price;
 
-    const rows = [];
     const half = Math.floor(LADDER_ROWS / 2);
-    for (let i = half; i >= -half; i--) {
-        const at = price * (1 + i * LADDER_STEP);
-        rows.push({ at, pnl: qty * (at - entry), here: i === 0 });
+    // About 0.35% a rung, rounded to a price people can hold in their head.
+    const want = price * 0.0035;
+    const tick = LADDER_TICKS.reduce((best, t) => (Math.abs(t - want) < Math.abs(best - want) ? t : best));
+    // Re-centre only once the price is close to running off the end, so the ladder is mostly still.
+    if (ladderAnchor === null || Math.abs(price - ladderAnchor) > tick * (half - 2)) {
+        ladderAnchor = Math.round(price / tick) * tick;
     }
+
+    const rows = [];
+    for (let i = half; i >= -half; i--) {
+        const at = ladderAnchor + i * tick;
+        rows.push({ at, pnl: qty * (at - entry), here: price >= at - tick / 2 && price < at + tick / 2 });
+    }
+
     const biggest = Math.max(...rows.map((r) => Math.abs(r.pnl)), 1e-9);
     const bar = (v) => `${Math.min(40, (Math.abs(v) / biggest) * 40)}%`;   // leave room for the number
     const tag = (v) => (Math.abs(v) < 0.005 ? '' : `${v > 0 ? '+' : '−'}${money(Math.abs(v))}`);
