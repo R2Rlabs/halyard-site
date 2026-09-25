@@ -3,273 +3,206 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Halyard — learn to trade before you risk real money</title>
-<meta name="description" content="A perpetual futures exchange for BTC and ETH on Trac Network, with lessons and free practice before anyone can deposit. A product by r2rlabs.">
-<meta property="og:title" content="Halyard — learn to trade before you risk real money">
-<meta property="og:description" content="Perpetual futures on Trac Network. Learn and practice free first. 5× maximum leverage. A product by r2rlabs.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://halyard.r2rlabs.com/">
+<title>Halyard — practice perpetual futures with play money at live prices</title>
+<meta name="description" content="Practice trading perpetual futures with 10,000 play USDT at live BTC prices. No deposit, no risk, no account. A product by r2rlabs.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
-:root{
-  --bg:#0B0E13; --panel:#12161D; --panel2:#161B23; --border:#242B35;
-  --text:#E7EAEE; --muted:#98A2B0; --soft:#A9B2BF;
-  --amber:#F0A63A; --green:#34C77B; --red:#F2555A;
-  --maxw:1080px;
-}
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,-apple-system,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 a{color:var(--amber)}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
-header{position:sticky;top:0;z-index:10;background:rgba(11,14,19,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
-.nav{display:flex;align-items:center;gap:20px;height:60px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
-.nav-links{margin-left:auto;display:flex;gap:18px;font-size:14px}
-.nav-links a{color:var(--muted);text-decoration:none}
-.nav-links a:hover{color:var(--text)}
-@media(max-width:640px){.nav-links{display:none}}
-section{padding:72px 0;border-bottom:1px solid var(--border)}
-h1{font-size:clamp(34px,5.4vw,60px);line-height:1.08;font-weight:600;margin:0 0 20px}
-h2{font-size:clamp(24px,3.4vw,34px);line-height:1.15;font-weight:600;margin:0 0 12px}
-h3{font-size:18px;font-weight:600;margin:0 0 6px}
-p{margin:0 0 16px;color:var(--soft)}
-.lead{font-size:clamp(17px,2.2vw,21px);max-width:44rem}
-.eyebrow{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
-.grid{display:grid;gap:16px}
-.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media(max-width:780px){.g2,.g3{grid-template-columns:1fr}}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px}
-.card p{margin:0;font-size:14px;color:var(--muted)}
-.pill{display:inline-block;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
-.btn{display:inline-block;padding:13px 22px;border-radius:12px;background:var(--amber);color:var(--bg);font-weight:600;font-size:15px;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
-.btn:hover{filter:brightness(1.06)}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.stat{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:30px;font-weight:600}
-.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
-.list{margin:0;padding-left:20px;color:var(--soft);font-size:15px}
-.list li{margin-bottom:8px}
-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
-input[type=email]{flex:1;min-width:240px;padding:13px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-family:inherit;font-size:15px}
-input[type=email]:focus{outline:2px solid var(--amber);outline-offset:1px}
-.formnote{font-size:13px;color:var(--muted);margin-top:10px}
-.consent{flex-basis:100%;display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--muted);margin-top:2px}
-.consent input{margin-top:3px;accent-color:var(--amber)}
-.warn{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:10px;padding:18px 20px}
-.warn p{margin:0;font-size:14px;color:var(--muted)}
-footer{padding:40px 0 64px;color:var(--muted);font-size:14px}
-footer a{color:var(--muted)}
-.foot-row{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
-.small{font-size:13px;color:var(--muted)}
+
+header{display:flex;align-items:center;gap:18px;height:52px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;text-decoration:none;color:var(--text)}
+nav{display:flex;gap:2px}
+nav a{padding:7px 11px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
+nav a.on{color:var(--text);background:#1C222B}
+.right{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:4px;background:var(--green);display:inline-block}
+.dot.warn{background:var(--amber)}
+.balance{padding:6px 12px;border:1px solid var(--border);border-radius:9px;font-family:var(--mono);font-size:13px;white-space:nowrap}
+
+.market{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.sym{padding:7px 12px;border:1px solid var(--border);border-radius:9px;font-weight:600}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat .k{font-size:11px;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-size:14px}
+.big{font-family:var(--mono);font-size:24px;font-weight:600}
+.tag{margin-left:auto;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--amber);background:rgba(240,166,58,.12)}
+
+main{display:flex;gap:14px;padding:14px;align-items:flex-start}
+.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+.side-col{width:330px;flex-shrink:0;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+.card h2{font-size:14px;font-weight:600;margin:0 0 10px}
+#chart-wrap{position:relative;height:360px;padding:10px 10px 4px}
+#chart{width:100%;height:100%;display:block}
+.chart-note{position:absolute;left:16px;top:14px;font-size:11px;color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:9px 8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+td.name{font-family:inherit;font-weight:600}
+.badge{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;font-family:inherit}
+.badge.long{color:var(--green);background:rgba(52,199,123,.12)}
+.badge.short{color:var(--red);background:rgba(242,85,90,.12)}
+.empty{color:var(--muted);padding:12px 8px;font-size:13px}
+.hist{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 8px;border-bottom:1px solid var(--border)}
+
+.side{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:var(--bg);border-radius:9px;margin-bottom:12px}
+.side button{height:36px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
+.side button[aria-pressed=true]{background:var(--green);color:var(--bg)}
+.side button.short[aria-pressed=true]{background:var(--red);color:#fff}
+label{display:block;font-size:11px;color:var(--muted);margin:10px 0 5px}
+input[type=number]{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);font-family:var(--mono);font-size:14px}
+input[type=range]{width:100%;accent-color:var(--green)}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:12px}
+.row span:last-child{font-family:var(--mono)}
+.muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+button.primary{width:100%;height:44px;margin-top:12px;border:none;border-radius:10px;background:var(--green);color:var(--bg);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+button.primary.short{background:var(--red);color:#fff}
+button.primary:disabled{opacity:.45;cursor:default}
+button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:12px;cursor:pointer}
+.note{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5}
+.warnbox{border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:9px;background:var(--panel2);padding:10px 12px;font-size:12px;color:var(--soft);line-height:1.5}
+.chart-tools{position:absolute;left:16px;right:16px;top:12px;display:flex;align-items:center;gap:10px;z-index:2}
+.tfs{margin-left:auto;display:flex;gap:2px}
+.tfs button{padding:3px 9px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.tfs button.on{background:#1C222B;color:var(--text)}
+.pcts{display:flex;gap:5px;margin-top:7px}
+.pcts button{flex:1;padding:5px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.pcts button:hover{color:var(--text)}
+.tpsl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.tpsl input{padding:8px 9px;font-size:13px}
+.strip{padding:8px 16px;border-bottom:1px solid var(--border);background:rgba(240,166,58,.07);color:var(--soft);font-size:12px}
+footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.6}
+
+@media(max-width:900px){
+  main{flex-direction:column}
+  .side-col{width:100%;order:-1}
+  #chart-wrap{height:250px}
+  nav{display:none}
+  table th:nth-child(4),table td:nth-child(4),table th:nth-child(6),table td:nth-child(6){display:none}
+}
+@media(max-width:560px){header{gap:10px;padding:0 12px}.right .status{display:none}.big{font-size:20px}.market{gap:14px}}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="wrap nav">
-    <a class="brand" href="#top">
-      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
-      Halyard
-    </a>
-    <nav class="nav-links">
-      <a href="./learn/">Learn</a>
-      <a href="./practice/">Practice</a>
-      <a href="#how">How it works</a>
-      <a href="#safety">Safety</a>
-      <a href="#trust">Trust</a>
-      <a href="#fund">Insurance fund</a>
-      <a href="#waitlist">Waitlist</a>
-    </nav>
-  </div>
+  <a class="brand" href="./">
+    <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <nav>
+    <a href="./" class="on">Trade</a>
+    <a href="./learn/">Learn</a>
+    <a href="./about/">About</a>
+  </nav>
+  <span class="right">
+    <span class="status"><span class="dot" id="feed-dot"></span> <span id="feed-status">connecting</span></span>
+    <span class="balance"><span id="balance">10,000.00</span> <span class="muted">PLAY</span></span>
+  </span>
 </header>
 
-<main id="top">
+<div class="strip">Practice mode: play money at live prices. Real trading opens once the insurance fund reaches ,000 — <a href="./about/">how it works</a>.</div>
+<div class="market">
+  <span class="sym">BTC-PERP</span>
+  <span class="big" id="price">—</span>
+  <span class="stat"><span class="k">24h change</span><span class="v" id="change">—</span></span>
+  <span class="stat"><span class="k">24h high</span><span class="v" id="high">—</span></span>
+  <span class="stat"><span class="k">24h low</span><span class="v" id="low">—</span></span>
+  <span class="tag">Practice · play money</span>
+</div>
 
-<section>
-  <div class="wrap">
-    <span class="pill">Lessons and practice are live · trading is not</span>
-    <h1 style="margin-top:18px">Learn to trade before you risk real money</h1>
-    <p class="lead">Halyard is a perpetual futures exchange for BTC and ETH, built on Trac Network, using USDT from TAP Protocol as collateral. Every price is checked on-chain, leverage stops at 5×, and nobody can deposit until they've shown they understand how a position gets liquidated.</p>
-    <div class="row" style="margin-top:26px">
-      <a class="btn" href="./practice/">Practice with 10,000 play USDT</a>
-      <a class="btn ghost" href="./learn/">Take the six lessons</a>
-    </div>
-    <p class="small" style="margin-top:22px">A product by r2rlabs. Lessons and play-money practice are open to everyone, everywhere. Real trading is not available in the United States.</p>
-  </div>
-</section>
-
-<section id="how">
-  <div class="wrap">
-    <div class="eyebrow">How it works</div>
-    <h2>Learn, practice, then trade</h2>
-    <p class="lead">Nothing here needs a deposit until you want one.</p>
-    <div class="grid g3" style="margin-top:26px">
-      <div class="card">
-        <h3>1. Learn</h3>
-        <p>Six short lessons covering leverage, liquidation, funding and stop-losses. About fifteen minutes, free, no account needed.</p>
-      </div>
-      <div class="card">
-        <h3>2. Practice</h3>
-        <p>10,000 play USDT at real prices, on the same screen as real trading. It runs on your own device, so it costs nothing and risks nothing.</p>
-      </div>
-      <div class="card">
-        <h3>3. Trade</h3>
-        <p>Pass a ten-question experience check, then deposit. Score 9 or 10 and you trade straight away; otherwise the lessons come first.</p>
+<main>
+  <div class="left">
+    <div class="card" id="chart-wrap">
+      <canvas id="chart"></canvas>
+      <div class="chart-tools">
+        <span class="chart-note" id="chart-note">BTC/USD · live</span>
+        <span class="tfs" id="tfs">
+          <button data-m="1" class="on">1m</button><button data-m="5">5m</button><button data-m="15">15m</button><button data-m="60">1h</button><button data-m="360">6h</button>
+        </span>
       </div>
     </div>
-    <div class="warn" style="margin-top:22px">
-      <p><strong style="color:var(--text)">Halyard is not a spot market.</strong> You never own BTC here. Every position is a contract matched against another trader, and when you win, they lose. That is why we make people practice first.</p>
+
+    <div class="card">
+      <h2>Your position</h2>
+      <table>
+        <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Collateral</th><th>Entry</th><th>Liquidation</th><th>Profit / loss</th><th></th></tr></thead>
+        <tbody id="positions-body"><tr><td colspan="8" class="empty">Nothing open. Place an order and it fills in about ten seconds.</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>What happened</h2>
+      <div id="history"><div class="empty">Your trades will appear here.</div></div>
+      <button class="ghost" id="reset-btn" style="margin-top:10px">Start again with 10,000</button>
     </div>
   </div>
-</section>
 
-<section id="safety">
-  <div class="wrap">
-    <div class="eyebrow">Safety rules</div>
-    <h2>Limits that stay on, even when they cost us volume</h2>
-    <div class="grid g2" style="margin-top:26px">
-      <div class="card"><h3>5× maximum leverage</h3><p>For everyone. Most exchanges offer 50× or more, which is how small accounts disappear in an afternoon.</p></div>
-      <div class="card"><h3>An experience check before the first deposit</h3><p>Ten questions, for every new account. Experienced traders pass in a few minutes.</p></div>
-      <div class="card"><h3>Beginner limits for 14 days</h3><p>Maximum 2× leverage and at most 1,000 USDT deposited in total while you find your feet.</p></div>
-      <div class="card"><h3>Practice first, always free</h3><p>Lessons, five practice trades, a stop-loss and a practice liquidation before real money is possible.</p></div>
+  <div class="side-col">
+    <div class="card">
+      <h2>Open a position</h2>
+      <div class="side">
+        <button id="long-btn" aria-pressed="true">Long</button>
+        <button id="short-btn" class="short" aria-pressed="false">Short</button>
+      </div>
+
+      <label for="collateral">Collateral (play USDT)</label>
+      <input type="number" id="collateral" value="500" min="1" step="10">
+
+      <div class="pcts"><button data-p="0.25">25%</button><button data-p="0.5">50%</button><button data-p="0.75">75%</button><button data-p="1">Max</button></div>
+      <label for="leverage">Leverage · <span id="lev-label">2.0×</span></label>
+      <input type="range" id="leverage" min="1" max="5" step="1" value="2">
+
+      <div class="tpsl">
+        <div><label for="stop-loss">Stop-loss (optional)</label><input type="number" id="stop-loss" placeholder="price" step="1"></div>
+        <div><label for="take-profit">Take-profit (optional)</label><input type="number" id="take-profit" placeholder="price" step="1"></div>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
+        <div class="row"><span class="muted">Position size</span><span id="sum-size">—</span></div>
+        <div class="row"><span class="muted">Liquidation price</span><span class="red" id="sum-liq">—</span></div>
+        <div class="row"><span class="muted">Worst price you accept</span><span id="sum-worst">—</span></div>
+        <div class="row"><span class="muted">Fee (0.06%)</span><span id="sum-fee">—</span></div>
+      </div>
+
+      <button class="primary" id="submit-btn">Open long</button>
+      <div class="note" id="order-note">Fills take about ten seconds, the same as settling on Trac. If the price passes your limit, nothing opens.</div>
+    </div>
+
+    <div class="card">
+      <h2>Why there is no order book</h2>
+      <p style="margin:0 0 8px;font-size:12px;color:var(--soft);line-height:1.55">Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price.</p>
+      <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.55">That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched instantly.</p>
+    </div>
+
+    <div class="card" id="pending-card" hidden>
+      <h2>Filling…</h2>
+      <div class="row"><span class="muted">Time left</span><span id="pend-left">—</span></div>
+      <div class="row"><span class="muted">Price when you pressed</span><span id="pend-price">—</span></div>
+      <div class="row"><span class="muted">Worst you accept</span><span class="amber" id="pend-worst">—</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Beginner limits</h2>
+      <div class="warnbox" style="margin-bottom:10px">On the real thing, your first 14 days are capped at 2×, with a tighter 0.3% price limit and 1,000 USDT deposited in total.</div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);margin:0">
+        <input type="checkbox" id="beginner-toggle" style="accent-color:var(--amber)"> Trade as a beginner
+      </label>
     </div>
   </div>
-</section>
-
-<section id="trust">
-  <div class="wrap">
-    <div class="eyebrow">Why you can trust r2rlabs</div>
-    <h2>rugged2rich means our users don't get rugged</h2>
-    <p class="lead">These are commitments we are building in and will publish. The first one already works in our proof of concept.</p>
-    <div class="grid g3" style="margin-top:26px">
-      <div class="card"><h3>No one can set a price</h3><p>Prices come signed from Pyth and every node checks the signatures before a trade fills. We cannot move a price, and neither can anyone else.</p></div>
-      <div class="card"><h3>No key can take your money</h3><p>Deposits are held by the contract, not by us. No admin key moves user funds.</p></div>
-      <div class="card"><h3>Upgrades wait seven days</h3><p>Every change is announced before it takes effect, so you can leave first if you disagree with it.</p></div>
-      <div class="card"><h3>Open code and audits</h3><p>The code will be published and audited before it holds real money. Report a flaw to <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>.</p></div>
-      <div class="card"><h3>No promised returns</h3><p>Not for traders, not for backers. Anyone promising you a yield on leveraged trading is selling something.</p></div>
-      <div class="card"><h3>Everything disclosed</h3><p>Paid posts and partnerships are labelled. Fees are listed in full, with no hidden spread.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="fund">
-  <div class="wrap">
-    <div class="eyebrow">The insurance fund</div>
-    <h2>No liquidity pool. Traders are matched against each other</h2>
-    <p class="lead">Every long is matched with a short. The insurance fund covers the two moments that breaks: when one side is missing, and when a crash jumps past a liquidation price.</p>
-    <div class="grid g3" style="margin-top:26px">
-      <div class="card"><div class="stat">$5,000</div><p style="margin-top:6px">Community backing needed before beta trading opens.</p></div>
-      <div class="card"><div class="stat">50%</div><p style="margin-top:6px">Share of trading fees that goes to the backers who fund it.</p></div>
-      <div class="card"><div class="stat">First loss</div><p style="margin-top:6px">Backers absorb losses before any trader does, with no promised return and seven days' withdrawal notice.</p></div>
-    </div>
-    <p class="small" style="margin-top:18px">Backing the fund is putting money at risk. Questions before you consider it: <a href="mailto:backers@r2rlabs.com">backers@r2rlabs.com</a>.</p>
-  </div>
-</section>
-
-<section id="proof">
-  <div class="wrap">
-    <div class="eyebrow">What's built</div>
-    <h2>The price check already works</h2>
-    <p class="lead">We built the riskiest piece first: a Trac contract that verifies Pyth's signatures itself, tested against real price updates.</p>
-    <div class="grid g3" style="margin-top:26px">
-      <div class="card"><div class="stat">~5 ms</div><p style="margin-top:6px">To verify a signed price inside a Trac contract.</p></div>
-      <div class="card"><div class="stat">78</div><p style="margin-top:6px">Automated tests passing against real Pyth updates.</p></div>
-      <div class="card"><div class="stat">0</div><p style="margin-top:6px">Forged, tampered or replayed prices accepted in testing.</p></div>
-    </div>
-    <p class="small" style="margin-top:18px">Proof of concept, not yet audited. The code will be published alongside the audit.</p>
-  </div>
-</section>
-
-<section id="waitlist">
-  <div class="wrap">
-    <div class="eyebrow">Waitlist</div>
-    <h2>Be told when real trading opens</h2>
-    <p class="lead">The lessons and practice are open now, free and with no deposit. Leave an address and we will email once, when real trading opens. Nothing else.</p>
-    <form id="waitlist-form" method="post" action="">
-      <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required autocomplete="email">
-      <button class="btn" type="submit">Join the waitlist</button>
-      <input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-      <label class="consent"><input type="checkbox" name="in_us"> I am in the United States. Send me practice and lesson news only.</label>
-    </form>
-    <p class="formnote" id="formnote">We store your address to send those emails and nothing else. Unsubscribe any time. See the <a href="privacy.html">privacy page</a> for who stores it.</p>
-  </div>
-</section>
-
 </main>
 
 <footer>
-  <div class="wrap">
-    <div class="foot-row">
-      <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 50 H22 V38 H34 V26 H46 V14 H58" fill="none" stroke="#E7EAEE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 50 H22" stroke="#F0A63A" stroke-width="5" stroke-linecap="round"/></svg>
-      <span style="color:var(--text)"><strong>r2r</strong>labs</span>
-      <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>
-      <a href="mailto:security@r2rlabs.com">security@r2rlabs.com</a>
-      <a href="privacy.html">Privacy</a>
-    </div>
-    <p class="small">Halyard is in development and is not live. Perpetual futures are leveraged products: you can lose everything you put in, quickly. Nothing here is investment advice. Lessons and practice are open everywhere; real trading is not offered to anyone in the United States, and we block it by country at the app. Simulated figures are simulations, not forecasts or promises.</p>
-    <p class="small">© <span id="year">2026</span> r2rlabs</p>
-  </div>
+  Play money only: nothing here is a deposit and nothing can be won or lost. Practice prices come from Coinbase or Kraken; real trading uses Pyth prices with signatures checked on-chain by every Halyard node.<br>
+  Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
-
-// Waitlist.
-//
-// ENDPOINT takes a URL that accepts a JSON POST of {email, source}. Formspree gives you one at
-// https://formspree.io/f/XXXXXXXX; Buttondown, Tally and a handler of your own work the same way.
-// Whatever you use stores real people's addresses, so name it on privacy.html before you switch it on.
-//
-// While ENDPOINT is empty the form opens the visitor's email app instead, so no address is lost.
-var ENDPOINT = '';
-
-var form = document.getElementById('waitlist-form');
-var note = document.getElementById('formnote');
-var noteText = note.innerHTML;
-
-function say(html, colour) {
-  note.innerHTML = html;
-  note.style.color = colour || '';
-}
-
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
-  var email = form.email.value.trim();
-  if (!email) return;
-  if (form.company.value) return;           // a bot filled the hidden field
-
-  if (!ENDPOINT) {
-    window.location.href = 'mailto:hello@r2rlabs.com?subject=Waitlist&body=' +
-      encodeURIComponent('Please add ' + email + ' to the Halyard waitlist.');
-    say('Opening your email app. Send that message and you are on the list.');
-    return;
-  }
-
-  var button = form.querySelector('button');
-  button.disabled = true;
-  button.textContent = 'Adding you…';
-  say(noteText);
-
-  fetch(ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ email: email, source: 'halyard-landing', in_us: form.in_us.checked })
-  }).then(function (r) {
-    if (!r.ok) throw new Error('status ' + r.status);
-    form.innerHTML = '<p style="margin:0;color:var(--green);font-weight:600">You are on the list. ' +
-      'We will email when practice mode opens, and once more before real trading does.</p>';
-    say('Nothing else, and we do not share your address.');
-  }).catch(function () {
-    button.disabled = false;
-    button.textContent = 'Join the waitlist';
-    say('That did not go through. Email <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a> and we will add you by hand.', 'var(--red)');
-  });
-});
-</script>
+<script type="module" src="./practice/app.js?v=4"></script>
 </body>
 </html>
