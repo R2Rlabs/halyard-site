@@ -1,10 +1,10 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=24';
-import { createPractice, RULES } from './practice.js?v=24';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=24';
-import { clock } from './funding.js?v=24';
-import { createBook } from './book.js?v=24';
-import { createTour } from './tour.js?v=24';
+import { connectPrice } from './feed.js?v=27';
+import { createPractice, RULES } from './practice.js?v=27';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=27';
+import { clock } from './funding.js?v=27';
+import { createBook } from './book.js?v=27';
+import { createTour } from './tour.js?v=27';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -309,7 +309,7 @@ function renderAll(_state, _price, event) {
         filled: 'Filled. Your entry and liquidation price are marked on the chart.',
         liquidated: 'Liquidated: the price reached the level where your collateral ran out. That is what it feels like.',
         submitted: 'Submitted. It settles in about ten seconds, then fills when a trader takes the other side.',
-        queued: 'Settled, and now waiting for the other side. In a one-sided market, this is what happens.',
+        queued: 'Settled. Now it needs traders on the other side, and the bigger the order the more of them it takes.',
         unmatched: 'Nobody took the other side before the order expired, so nothing opened. Your play money is untouched.',
         'stop-loss': 'Your stop-loss closed the position. That decision was made while you were calm, which is the point of it.',
         'take-profit': 'Your take-profit closed the position.',
