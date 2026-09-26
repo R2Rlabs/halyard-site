@@ -12,9 +12,15 @@ const ENDPOINT = 'https://halyard-counter.r2rlabs.workers.dev';
 
 const EVENTS = new Set(['visit', 'open', 'close', 'liquidated', 'expired']);
 
-export function count(event) {
+// `book` is optional: the long and short size of the simulated market in this browser, in BTC. Those
+// two numbers are produced by our own code and describe nobody — they say how much practice trading
+// is happening, never who is doing it.
+export function count(event, book = null) {
     if (!ENDPOINT || !EVENTS.has(event)) return;
-    const url = `${ENDPOINT}/e?k=${event}`;
+    const size = book && Number.isFinite(book.long) && Number.isFinite(book.short)
+        ? `&l=${book.long.toFixed(3)}&s=${book.short.toFixed(3)}`
+        : '';
+    const url = `${ENDPOINT}/e?k=${event}${size}`;
     try {
         // sendBeacon survives the page being closed, which matters for the last event of a session.
         if (navigator.sendBeacon) navigator.sendBeacon(url);

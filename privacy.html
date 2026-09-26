@@ -62,7 +62,7 @@ footer a{color:var(--muted)}
       <li>a practice position was liquidated</li>
       <li>an order expired without finding the other side</li>
     </ul>
-    <p>Each one sends a single request carrying the name of the event and <strong>nothing else</strong>: no cookie, no identifier, no session, no account, no page address, no referrer. Our counter adds one to an hourly total and keeps no record of the request, so it can say <em>forty positions were opened today</em> and can never say who opened them — not to us, and not to anyone who asked us.</p>
+    <p>Each one sends a single request carrying the name of the event and two numbers: how much of the <em>simulated</em> market in your browser is long and how much is short, in BTC. Those two numbers are produced by our own code to populate the practice screen, and they describe nobody. Beyond that, <strong>nothing</strong>: no cookie, no identifier, no session, no account, no page address, no referrer, and nothing about your own position. Our counter adds one to an hourly total and keeps no record of the request, so it can say <em>forty positions were opened today</em> and can never say who opened them — not to us, and not to anyone who asked us.</p>
     <p>That is a real limit and we accept it: because there is no identifier, we cannot tell whether forty positions were forty people or one person forty times. Counting people would need something that follows you between visits, and we would rather not have it.</p>
     <p>The counter runs on <strong>Cloudflare Workers</strong> under our own account, so the numbers go to us rather than to an analytics company. Totals are deleted after 90 days. If you block it, nothing on the site changes.</p>
 
