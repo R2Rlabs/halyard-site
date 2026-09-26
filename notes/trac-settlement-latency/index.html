@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How long a write takes to settle on a Trac subnet — r2rlabs</title>
+<meta name="description" content="Twenty samples on a deployed Trac subnet: median 10.4s, p90 26.3s, max 28.7s, and 41s for the first transaction on a cold node. The method, the caveats and the four things that cost us a day.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How long a write takes to settle on a Trac subnet">
+<meta property="og:description" content="Twenty samples on a deployed subnet: median 10.4s, p90 26.3s, max 28.7s. One subnet, one node — a number for our own staleness budget, not a benchmark of the network.">
+<meta property="og:site_name" content="Halyard · r2rlabs">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.wrap{max-width:720px;margin:0 auto;padding:40px 18px 80px}
+h1{font-size:clamp(27px,4.4vw,39px);line-height:1.18;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
+.byline{color:var(--muted);font-size:13px;font-family:var(--mono);margin:0 0 32px}
+h2{font-size:clamp(20px,2.6vw,24px);font-weight:600;margin:42px 0 12px;letter-spacing:-.01em}
+p{color:var(--soft);margin:0 0 18px}
+strong{color:var(--text);font-weight:600}
+em{color:var(--text)}
+code{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;color:var(--text)}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 12px 12px 0;padding:18px 20px;margin:0 0 26px;box-shadow:0 0 24px rgba(240,166,58,.05)}
+.callout p:last-child{margin-bottom:0}
+table{width:100%;border-collapse:collapse;margin:0 0 24px;font-size:15px}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--soft)}
+td:not(:first-child){font-family:var(--mono)}
+tr:last-child td{border-bottom:none}
+.big{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--text)}
+ul{color:var(--soft);padding-left:22px;margin:0 0 18px}
+li{margin-bottom:9px}
+.lede{font-size:18px;color:var(--text)}
+hr{border:none;border-top:1px solid var(--border);margin:44px 0 22px}
+.foot{font-size:13px;color:var(--muted)}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.samples span{font-family:var(--mono);font-size:15px;padding:8px 14px;border:1px solid var(--border);border-radius:9px;background:var(--panel)}
+.samples span:first-child{border-color:var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../../">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="pill">Notes</span>
+</header>
+
+<div class="wrap">
+  <h1>How long a write takes to settle on a Trac subnet</h1>
+  <p class="byline">r2rlabs · 26 September 2026</p>
+
+  <p class="lede">We needed a number, could not find one, so we measured it and are publishing the result and the harness. If you are building on Trac and have wondered how long your writes actually take to agree, this is one data point with the method attached so you can get your own.</p>
+
+  <div class="callout">
+    <p><strong>What this is not:</strong> a benchmark of Trac. We measured one subnet, from one node, on one home connection, over twenty samples. It says nothing about the network's capacity, its throughput, or how fast it can go — only how long <em>our</em> writes took to come back agreed from where we were sitting. For anything about the network itself, read Trac's own documentation rather than our numbers.</p>
+  </div>
+
+  <h2>Why we cared</h2>
+  <p>We are building a perpetual futures exchange where every price is verified inside a Trac contract. That means a price has a shelf life: too old and it should not be traded on. Setting that threshold needs three numbers, and we had two of them.</p>
+
+  <table>
+    <tr><th>Step</th><th>Measured</th><th>How</th></tr>
+    <tr><td>Fetch a signed price from Pyth's Hermes</td><td class="big">518 ms</td><td>100 fetches</td></tr>
+    <tr><td>Verify its signature inside the contract</td><td class="big">4.5 ms</td><td>1,000 runs</td></tr>
+    <tr><td>Settle it on Trac</td><td class="big">?</td><td>—</td></tr>
+  </table>
+
+  <p>Settlement was the whole budget and we were guessing at it. So we stopped guessing.</p>
+
+  <h2>What we ran</h2>
+  <p>A subnet on Trac mainnet running our Pyth oracle contract, and a harness that submits real signed price updates and times two things per sample: how long the broadcast call takes to return, and how long until the price is readable from the <strong>signed</strong> view — which is the number that matters, because that is when the network has agreed rather than when our client stopped talking.</p>
+  <p>Each transaction costs a flat 0.03 TNK, so twenty samples cost 0.6 TNK. Nothing failed.</p>
+
+  <h2>The result</h2>
+  <p>Twenty samples, warm node:</p>
+  <table>
+    <tr><th></th><th>Seconds</th></tr>
+    <tr><td>Median</td><td class="big">10.4</td></tr>
+    <tr><td>p90</td><td class="big">26.3</td></tr>
+    <tr><td>Max</td><td class="big">28.7</td></tr>
+  </table>
+
+  <p>The first five samples, in order:</p>
+  <div class="samples"><span>41s</span><span>21s</span><span>8s</span><span>10s</span><span>10s</span></div>
+
+  <p>That first 41 seconds is the most useful thing we learned. It is not consensus — it is a cold node finding peers and opening connections. Every later sample on the same node was under 30 seconds. If you are building something a person waits for, warm the connection up before they press anything, because otherwise your first user action looks broken and your later ones look fine.</p>
+
+  <p>The tail matters more than the median for us. A median of 10 seconds is livable. A p90 of 26 seconds means one write in ten takes nearly half a minute, and anything built on the assumption of ten will misbehave regularly.</p>
+
+  <h2>What we changed because of it</h2>
+  <p>We had planned a 30-second staleness threshold — a price older than that cannot be traded on. The measurement said that was wrong in the direction we did not expect: a perfectly normal 28-second settlement was one bad moment away from rejecting honest trades.</p>
+  <p>So we <strong>raised</strong> it to 60 seconds, and raised the gap threshold to 120. That sounds like weakening a safety rule, and it would be, if staleness were the only protection. It is not. Every order carries the worst price its owner will accept, checked at fill time, so the economic protection is the price band and staleness is just a blunt outer limit. Tightening the wrong dial would have cost users fills without making them safer.</p>
+
+  <h2>Four things that cost us a day</h2>
+  <p>These are the parts we would have wanted to read before starting.</p>
+
+  <p><strong>A fresh install breaks hypercore writes.</strong> <code>npm install</code> pulled hyperschema 1.26.2, which wants compact-encoding v3, while hypercore-storage wants v2. The symptom is <code>Cannot read properties of null (reading 'length')</code> on any write, which looks like your bug and is not. Pin <code>hyperschema</code> to 1.19.0 — the version trac-peer's own lockfile uses.</p>
+
+  <p><strong>A broadcast with no connected validators returns a bare <code>false</code>.</strong> Not an error, not a reason. If your node has not finished finding peers, you get nothing back and no clue why. Wait for connections before submitting anything.</p>
+
+  <p><strong>Validators on the legacy protocol send no reply at all.</strong> The client waits for a response that will never arrive and times out after nine seconds by default, long before the transaction actually settles. We wait for the transaction to appear in the unsigned state instead, with the timeout raised to sixty seconds.</p>
+
+  <p><strong>"Broadcast failed" sometimes means it worked.</strong> We deployed our subnet three times, each apparently failing, before finding result code <strong>38 — <code>BOOTSTRAP_ALREADY_EXISTS</code></strong>. The first attempt had succeeded. Ask the network what state it is in rather than trusting the client's success or failure message; we now have a <code>check-subnet</code> script that does exactly that, and it saved us from deploying a fourth.</p>
+
+  <h2>Caveats, stated plainly</h2>
+  <ul>
+    <li>One subnet, one node, twenty samples. A larger sample would give a better tail.</li>
+    <li>Measured from a home connection in one location. Your latency to peers is not ours.</li>
+    <li>Our node was a writer on its own subnet. A busier subnet with more writers may behave differently.</li>
+    <li>Some validators were on the legacy protocol during our run. That mix will change over time, and so may these numbers.</li>
+    <li>We did not measure throughput, and nothing here should be read as a throughput figure.</li>
+  </ul>
+
+  <h2>The code</h2>
+  <p>The harness is <code>scripts/measure-settlement.mjs</code> in <a href="https://github.com/R2Rlabs/trac-oracle-poc">our oracle proof of concept</a>, which is public. It submits real Pyth updates, needs a funded MSB address, and prints every sample rather than only the summary, so you can see the shape rather than trust our arithmetic. If you run it and get different numbers, we would genuinely like to know — one data point is not a finding.</p>
+
+  <hr>
+  <p class="foot">r2rlabs builds <a href="../../">Halyard</a>, a perpetual futures exchange settling on Trac. Questions: <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>.</p>
+</div>
+
+</body>
+</html>
