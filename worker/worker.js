@@ -1,3 +1,5 @@
+import { arena } from './arena.js';
+
 // A counter, and nothing more.
 //
 // The site is static, so anything we want to know about usage has to be sent somewhere. This is that
@@ -18,7 +20,7 @@ const hourKey = (event, date = new Date()) => `${event}:${date.toISOString().sli
 
 const cors = (origin) => ({
     'Access-Control-Allow-Origin': origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
 });
@@ -88,6 +90,19 @@ export default {
 
         if (request.method === 'OPTIONS') {
             return new Response(null, { status: 204, headers: cors(origin) });
+        }
+
+        // The Arena answers on its own routes.
+        if (url.pathname.startsWith('/arena/')) {
+            if (origin && origin !== ALLOWED_ORIGIN) {
+                return new Response('forbidden origin', { status: 403, headers: cors(origin) });
+            }
+            const answer = await arena(request, env, url);
+            if (answer) {
+                for (const [header, value] of Object.entries(cors(origin))) answer.headers.set(header, value);
+                return answer;
+            }
+            return new Response('unknown arena route', { status: 404, headers: cors(origin) });
         }
 
         // Counting. One event per request, no body read, nothing else stored.
