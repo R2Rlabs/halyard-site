@@ -1,11 +1,11 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=30';
-import { createPractice, RULES } from './practice.js?v=30';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=30';
-import { clock } from './funding.js?v=30';
-import { createBook } from './book.js?v=30';
-import { createTour } from './tour.js?v=30';
-import { count } from './stats.js?v=30';
+import { connectPrice } from './feed.js?v=31';
+import { createPractice, RULES } from './practice.js?v=31';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=31';
+import { clock } from './funding.js?v=31';
+import { createBook } from './book.js?v=31';
+import { createTour } from './tour.js?v=31';
+import { count } from './stats.js?v=31';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -360,4 +360,6 @@ renderAll();
 
 // Someone arriving for the first time gets walked through it; everyone else asks for it.
 tour.maybeStart();
-count('visit', bookSize());
+// The visit fires before the first price arrives, when the simulated book is still empty, so it
+// carries no reading — a zero there would drag the average down and mean nothing.
+count('visit');
