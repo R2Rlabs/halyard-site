@@ -1,10 +1,11 @@
 // Wires the practice engine, the price feed and the chart to the screen.
-import { connectPrice } from './feed.js?v=27';
-import { createPractice, RULES } from './practice.js?v=27';
-import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=27';
-import { clock } from './funding.js?v=27';
-import { createBook } from './book.js?v=27';
-import { createTour } from './tour.js?v=27';
+import { connectPrice } from './feed.js?v=28';
+import { createPractice, RULES } from './practice.js?v=28';
+import { createChart, loadCandles, loadStats, MARKERS } from './chart.js?v=28';
+import { clock } from './funding.js?v=28';
+import { createBook } from './book.js?v=28';
+import { createTour } from './tour.js?v=28';
+import { count } from './stats.js?v=28';
 
 const $ = (id) => document.getElementById(id);
 const money = (n, dp = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -315,6 +316,13 @@ function renderAll(_state, _price, event) {
         'take-profit': 'Your take-profit closed the position.',
     };
     if (event?.type && notes[event.type]) $('order-note').textContent = notes[event.type];
+
+    // Totals only, so we can tell whether the thing is being used at all.
+    const counted = {
+        filled: 'open', closed: 'close', 'stop-loss': 'close', 'take-profit': 'close',
+        liquidated: 'liquidated', unmatched: 'expired',
+    };
+    if (event?.type && counted[event.type]) count(counted[event.type]);
 }
 
 practice.subscribe(renderAll);
@@ -350,3 +358,4 @@ renderAll();
 
 // Someone arriving for the first time gets walked through it; everyone else asks for it.
 tour.maybeStart();
+count('visit');

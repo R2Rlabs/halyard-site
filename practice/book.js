@@ -23,6 +23,7 @@ export const BOOK = {
     // standing interest waiting, and tops that interest up as it gets taken.
     seedPositionsPerSide: 7,
     restingPerSide: 3,
+    maxPositions: 220,      // a tab open all day should not grow a book without end
 };
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -189,6 +190,14 @@ export function createBook() {
         // Standing interest that was taken up eventually goes home too.
         for (const p of positions.filter((x) => x.owner === -1)) {
             if (Math.random() < BOOK.closeChance * 2 * dt) positions.splice(positions.indexOf(p), 1);
+        }
+
+        // A tab left open all day would otherwise accumulate positions for ever. The oldest anonymous
+        // ones go first, which keeps the named traders' book intact.
+        while (positions.length > BOOK.maxPositions) {
+            const oldest = positions.findIndex((p) => p.owner === -1);
+            if (oldest < 0) break;
+            positions.splice(oldest, 1);
         }
 
         // Somebody decides to go home.
