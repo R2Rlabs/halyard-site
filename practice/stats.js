@@ -8,7 +8,7 @@
 // ENDPOINT is empty until the Worker is deployed, and while it is empty this file sends nothing at
 // all — no requests leave the page. Switching it on means editing privacy.html in the same change.
 
-const ENDPOINT = '';
+const ENDPOINT = 'https://halyard-counter.r2rlabs.workers.dev';
 
 const EVENTS = new Set(['visit', 'open', 'close', 'liquidated', 'expired']);
 

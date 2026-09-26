@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy — Halyard</title>
-<meta name="description" content="What r2rlabs collects on halyard.r2rlabs.com, which is nothing, and what stays in your own browser.">
+<meta name="description" content="What r2rlabs counts on halyard.r2rlabs.com, which is five anonymous totals and nothing about you.">
 <meta name="robots" content="index,follow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,18 +46,32 @@ footer a{color:var(--muted)}
 <main>
   <div class="wrap">
     <h1>Privacy</h1>
-    <p class="updated">Last updated 25 September 2026 · r2rlabs</p>
+    <p class="updated">Last updated 26 September 2026 · r2rlabs</p>
 
     <p>This page covers halyard.r2rlabs.com as it stands today: lessons, a training deck and a practice trading screen, all free and none of them asking who you are. When real trading opens it will have its own terms and this page will be replaced by something longer. We will say so here when that happens.</p>
 
     <h2>What we collect</h2>
-    <p><strong>Nothing.</strong> There is no sign-up, no waitlist, no form and no account. We do not ask for your name, your email, your country or a wallet address, and there are no analytics, advertising pixels or tracking cookies anywhere on this site.</p>
+    <p><strong>Nothing about you.</strong> There is no sign-up, no form and no account. We do not ask for your name, your email, your country or a wallet address, and there are no advertising pixels or tracking cookies anywhere on this site.</p>
+
+    <h2>What we count</h2>
+    <p>We do count five things, so we can tell whether anybody is using this at all:</p>
+    <ul>
+      <li>the trading screen was loaded</li>
+      <li>a practice position was opened</li>
+      <li>a practice position was closed</li>
+      <li>a practice position was liquidated</li>
+      <li>an order expired without finding the other side</li>
+    </ul>
+    <p>Each one sends a single request carrying the name of the event and <strong>nothing else</strong>: no cookie, no identifier, no session, no account, no page address, no referrer. Our counter adds one to an hourly total and keeps no record of the request, so it can say <em>forty positions were opened today</em> and can never say who opened them — not to us, and not to anyone who asked us.</p>
+    <p>That is a real limit and we accept it: because there is no identifier, we cannot tell whether forty positions were forty people or one person forty times. Counting people would need something that follows you between visits, and we would rather not have it.</p>
+    <p>The counter runs on <strong>Cloudflare Workers</strong> under our own account, so the numbers go to us rather than to an analytics company. Totals are deleted after 90 days. If you block it, nothing on the site changes.</p>
 
     <h2>What stays in your browser</h2>
     <p>The practice screen keeps your play balance, your open position and your trade history in your own browser’s local storage, along with how far you got in the lessons and slides. It never leaves your device and we cannot read it. Clearing your browser data, or pressing “Start again with 10,000”, erases it.</p>
 
     <h2>Who else sees anything</h2>
     <ul>
+      <li><strong>Cloudflare</strong>, which runs the counter described above and therefore sees the request that carries the event name.</li>
       <li><strong>Our web host</strong>, which keeps ordinary server logs, including IP addresses, for a short period for security and abuse handling.</li>
       <li><strong>The price sources.</strong> The live BTC price comes straight from Coinbase or Kraken to your browser, and funding from OKX or Bybit, so those companies see the request and your IP address. We do not send them anything about you.</li>
       <li><strong>Google Fonts</strong>, which serves the typefaces and therefore receives your IP address. A blocking extension stops it and the pages still work.</li>
