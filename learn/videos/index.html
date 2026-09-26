@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watch a trade — Halyard</title>
+<meta name="description" content="Two short screen recordings taken on the live practice screen: opening a long, and opening a short. No sound needed.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.wrap{max-width:980px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.15;font-weight:600;margin:0 0 8px}
+.lead{color:var(--soft);font-size:17px;margin:0 0 6px;max-width:720px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;margin:22px 0 0;box-shadow:0 0 0 1px rgba(240,166,58,.07), 0 0 20px rgba(240,166,58,.05), 0 6px 20px rgba(0,0,0,.35)}
+.card h2{font-size:20px;font-weight:600;margin:0 0 4px}
+.meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+.card p{color:var(--soft);margin:0 0 14px;font-size:15px}
+.watch{position:relative;border:1px solid var(--border);border-radius:12px;background:var(--panel2);overflow:hidden;aspect-ratio:1568/745;display:flex;align-items:center;justify-content:center}
+.watch img{width:100%;height:100%;object-fit:contain;display:block}
+.play{display:flex;flex-direction:column;align-items:center;gap:10px;border:none;background:none;color:var(--text);font:inherit;cursor:pointer;padding:24px}
+.play .dot{width:62px;height:62px;border-radius:50%;background:var(--amber);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:24px}
+.play .k{font-size:14px;font-weight:600}
+.play .s{font-size:12px;color:var(--muted)}
+.note{font-size:14px;color:var(--muted);border-left:2px solid var(--amber);padding-left:12px;margin:14px 0 0}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{display:inline-block;padding:12px 18px;border-radius:11px;background:var(--amber);color:var(--bg);font-weight:600;font-size:15px;text-decoration:none}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+footer{border-top:1px solid var(--border);padding:22px 16px 60px;color:var(--muted);font-size:12px;line-height:1.6}
+footer .wrap{padding:0;max-width:980px}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="pill">Watch</span>
+</header>
+
+<div class="wrap">
+  <h1>Watch a trade, start to finish</h1>
+  <p class="lead">Two recordings taken on this site, at live prices, with play money. No sound — every step is labelled on screen. They are large files, so each one loads only when you ask for it.</p>
+
+  <div class="card">
+    <h2>Opening a long</h2>
+    <div class="meta">Betting the price goes up · 4.6 MB</div>
+    <p>Pick the side, put in 500, check the liquidation price, press the button, then sit through the ten seconds it takes to settle on Trac. It fills when a trader takes the other side, and the position appears with its entry marked on the ladder.</p>
+    <div class="watch" id="w-long">
+      <button class="play" data-src="./open-a-long.gif" data-into="w-long">
+        <span class="dot">▶</span>
+        <span class="k">Play the long</span>
+        <span class="s">4.6 MB · about 20 seconds</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Opening a short</h2>
+    <div class="meta">Betting the price goes down · 3.9 MB</div>
+    <p>The same trade in reverse, and watch one number in particular: the moment <strong>Short</strong> is pressed, the liquidation price jumps from below the market to <em>above</em> it, and the worst price you accept flips the other way too. That is the part people find hardest, and it happens in a single frame.</p>
+    <div class="watch" id="w-short">
+      <button class="play" data-src="./open-a-short.gif" data-into="w-short">
+        <span class="dot">▶</span>
+        <span class="k">Play the short</span>
+        <span class="s">3.9 MB · about 18 seconds</span>
+      </button>
+    </div>
+  </div>
+
+  <p class="note">These are recordings of the practice screen, so the money is play money and the traders on the other side are simulated. Everything else — the prices, the ten-second settlement, the liquidation maths — is the real thing.</p>
+
+  <div class="cta">
+    <a class="btn" href="../../">Try it yourself</a>
+    <a class="btn ghost" href="../slides/">Read the guide</a>
+    <a class="btn ghost" href="../simulation/">Watch a market run</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    Play money only: nothing here is a deposit and nothing can be won or lost. Halyard is in development; real trading is not offered in the United States. A product by r2rlabs.
+  </div>
+</footer>
+
+<script>
+// Each recording is several megabytes, so nothing downloads until somebody presses play.
+document.querySelectorAll('.play').forEach(function (button) {
+  button.addEventListener('click', function () {
+    var holder = document.getElementById(button.dataset.into);
+    var img = new Image();
+    img.alt = button.querySelector('.k').textContent;
+    img.src = button.dataset.src;
+    button.querySelector('.k').textContent = 'Loading…';
+    img.onload = function () { holder.innerHTML = ''; holder.appendChild(img); };
+    img.onerror = function () { button.querySelector('.k').textContent = 'That did not load — try again'; };
+  });
+});
+</script>
+</body>
+</html>
