@@ -8,6 +8,8 @@
 // The consequence is the point: to climb this table you have to invent trades that match what the
 // market actually did, which is the same problem as trading well.
 
+import { runBots as tickBots } from './bots.js';
+
 export const SEASON = {
     id: 's1',
     name: 'Season one',
@@ -21,6 +23,9 @@ export const SEASON = {
     maxTradesPerName: 300,
     feeRate: 0.0006,
 };
+
+// House bot names, so nobody can play under one.
+const RESERVED = new Set(['momentum', 'fade', 'coin flip', 'house', 'halyard', 'r2rlabs']);
 
 const NAME_OK = /^[A-Za-z0-9 _.-]{2,18}$/;
 const TTL = { expirationTtl: 60 * 60 * 24 * 120 };
@@ -135,6 +140,7 @@ async function claim(env, body) {
     if (!NAME_OK.test(name)) {
         return json({ error: 'A name is 2 to 18 letters, numbers, spaces, dots, dashes or underscores.' }, 400);
     }
+    if (RESERVED.has(name.toLowerCase())) return json({ error: 'That name belongs to a house bot.' }, 409);
     const existing = await readPlayer(env, name);
     if (existing) return json({ error: 'Somebody already has that name this season.' }, 409);
 
@@ -153,52 +159,46 @@ async function claim(env, body) {
 
 // --- trades -------------------------------------------------------------------------------------
 
-async function submit(env, body) {
-    if (!seasonOpen()) return json({ error: 'The season is not open.' }, 403);
-
-    const name = String(body.name ?? '').trim();
+// The one place a trade is judged and priced, used by people and by the house bots alike. Nothing
+// reaches a balance without coming through here, which is why the bots cannot cheat either.
+async function applyTrade(env, name, trade) {
     const player = await readPlayer(env, name);
-    if (!player) return json({ error: 'Claim a name first.' }, 404);
-    if (body.secret !== player.secret) return json({ error: 'That name belongs to another browser.' }, 403);
-    if (player.trades >= SEASON.maxTradesPerName) return json({ error: 'Trade limit reached for this season.' }, 429);
+    if (!player) return { error: 'Claim a name first.', status: 404 };
+    if (player.trades >= SEASON.maxTradesPerName) return { error: 'Trade limit reached for this season.', status: 429 };
 
-    const side = Number(body.side);
-    const qty = Number(body.qty);
-    const entry = Number(body.entry);
-    const exit = Number(body.exit);
-    const openedAt = Number(body.openedAt);
-    const closedAt = Number(body.closedAt);
-    const collateral = Number(body.collateral);
+    const { side, qty, entry, exit, collateral } = trade;
+    const openedAt = Number(trade.openedAt);
+    const closedAt = Number(trade.closedAt);
 
     const finite = [side, qty, entry, exit, openedAt, closedAt, collateral].every(Number.isFinite);
     if (!finite || (side !== 1 && side !== -1) || qty <= 0 || entry <= 0 || exit <= 0 || collateral <= 0) {
-        return json({ error: 'That trade does not make sense.' }, 400);
+        return { error: 'That trade does not make sense.', status: 400 };
     }
 
     // Inside the season, in the right order, and not from the future.
     if (openedAt < Date.parse(SEASON.startsAt) || closedAt > now() + 60000 || closedAt <= openedAt) {
-        return json({ error: 'Those times are outside the season.' }, 400);
+        return { error: 'Those times are outside the season.', status: 400 };
     }
 
     // You cannot risk what you do not have, and you cannot exceed the leverage everyone else has.
-    if (collateral > player.balance + 1e-9) return json({ error: 'That is more collateral than you have.' }, 400);
+    if (collateral > player.balance + 1e-9) return { error: 'That is more collateral than you have.', status: 400 };
     const notional = qty * entry;
     if (notional > collateral * SEASON.maxLeverage * 1.01) {
-        return json({ error: `That is more than ${SEASON.maxLeverage}x.` }, 400);
+        return { error: `That is more than ${SEASON.maxLeverage}x.`, status: 400 };
     }
 
     // The same trade twice is the oldest trick there is.
     const id = `${openedAt}-${closedAt}-${Math.round(entry * 100)}`;
-    if (await env.STATS.get(k.trade(name, id))) return json({ error: 'Already counted.' }, 409);
+    if (await env.STATS.get(k.trade(name, id))) return { error: 'Already counted.', status: 409 };
 
     // The part that matters: both prices have to match what BTC actually did at those moments.
     const [entryRange, exitRange] = await Promise.all([minuteRange(env, openedAt), minuteRange(env, closedAt)]);
     const lookupFailed = entryRange?.error ?? exitRange?.error;
     if (lookupFailed) {
-        return json({ error: 'Could not check the price history just now. Try again in a moment.', why: lookupFailed }, 503);
+        return { error: 'Could not check the price history just now. Try again in a moment.', why: lookupFailed, status: 503 };
     }
-    if (!believable(entry, entryRange)) return json({ error: 'That entry price is not what BTC was doing.' }, 422);
-    if (!believable(exit, exitRange)) return json({ error: 'That exit price is not what BTC was doing.' }, 422);
+    if (!believable(entry, entryRange)) return { error: 'That entry price is not what BTC was doing.', status: 422 };
+    if (!believable(exit, exitRange)) return { error: 'That exit price is not what BTC was doing.', status: 422 };
 
     // We compute the result ourselves. Whatever the browser thought it made is irrelevant.
     const gross = side * qty * (exit - entry);
@@ -215,7 +215,29 @@ async function submit(env, body) {
     await writePlayer(env, name, player);
     await touchBoard(env, player);
 
-    return json({ ok: true, pnl: Math.round(pnl * 100) / 100, balance: Math.round(player.balance * 100) / 100 });
+    return { ok: true, pnl: Math.round(pnl * 100) / 100, balance: Math.round(player.balance * 100) / 100 };
+}
+
+async function submit(env, body) {
+    if (!seasonOpen()) return json({ error: 'The season is not open.' }, 403);
+
+    const name = String(body.name ?? '').trim();
+    const player = await readPlayer(env, name);
+    if (!player) return json({ error: 'Claim a name first.' }, 404);
+    if (player.house) return json({ error: 'That is a house bot, not a name you can play under.' }, 403);
+    if (body.secret !== player.secret) return json({ error: 'That name belongs to another browser.' }, 403);
+
+    const result = await applyTrade(env, name, {
+        side: Number(body.side),
+        qty: Number(body.qty),
+        entry: Number(body.entry),
+        exit: Number(body.exit),
+        collateral: Number(body.collateral),
+        openedAt: Number(body.openedAt),
+        closedAt: Number(body.closedAt),
+    });
+    const { status = 200, ...rest } = result;
+    return json(rest, result.ok ? 200 : status);
 }
 
 // --- the board ----------------------------------------------------------------------------------
@@ -225,6 +247,7 @@ async function touchBoard(env, player) {
     const raw = await env.STATS.get(k.board());
     const board = raw ? JSON.parse(raw) : [];
     const row = { name: player.name, balance: Math.round(player.balance * 100) / 100, trades: player.trades };
+    if (player.house) { row.house = true; row.blurb = player.blurb; }
     const at = board.findIndex((r) => r.name.toLowerCase() === player.name.toLowerCase());
     if (at >= 0) board[at] = row; else board.push(row);
     board.sort((a, b) => b.balance - a.balance);
@@ -290,6 +313,11 @@ async function me(env, url) {
 
 // --- routing ------------------------------------------------------------------------------------
 
+
+// Driven by the cron trigger, and by hand with the stats token when we want to watch it work.
+export async function runBots(env) {
+    return tickBots(env, { minuteRange, readPlayer, writePlayer, applyTrade, season: SEASON });
+}
 
 export async function arena(request, env, url) {
     const path = url.pathname;

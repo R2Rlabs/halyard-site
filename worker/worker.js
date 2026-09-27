@@ -1,4 +1,4 @@
-import { arena } from './arena.js';
+import { arena, runBots } from './arena.js';
 
 // A counter, and nothing more.
 //
@@ -84,12 +84,26 @@ async function summary(env) {
 }
 
 export default {
+    // The house bots trade on a schedule. Same rules, same verification, no secret of their own.
+    async scheduled(event, env, ctx) {
+        ctx.waitUntil(runBots(env));
+    },
+
     async fetch(request, env) {
         const url = new URL(request.url);
         const origin = request.headers.get('Origin') ?? '';
 
         if (request.method === 'OPTIONS') {
             return new Response(null, { status: 204, headers: cors(origin) });
+        }
+
+        // Running a bot tick by hand, for watching it work without waiting for the cron.
+        if (url.pathname === '/arena/tick') {
+            if (!env.STATS_TOKEN || url.searchParams.get('t') !== env.STATS_TOKEN) {
+                return new Response('no', { status: 401 });
+            }
+            await runBots(env);
+            return new Response('ticked', { status: 200 });
         }
 
         // The Arena answers on its own routes.
