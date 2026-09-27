@@ -12,8 +12,10 @@ export const SEASON = {
     id: 's1',
     name: 'Season one',
     // Set when the season opens. Trades outside the window are refused.
-    startsAt: '2026-09-26T00:00:00Z',
-    endsAt: '2026-10-03T00:00:00Z',
+    // A fortnight: long enough that somebody who finds it late still has a run at the table, short
+    // enough that the first season is over while anyone still remembers joining.
+    startsAt: '2026-09-27T00:00:00Z',
+    endsAt: '2026-10-11T00:00:00Z',
     startingBalance: 10000,
     maxLeverage: 5,
     maxTradesPerName: 300,
