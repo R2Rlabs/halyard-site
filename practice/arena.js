@@ -118,7 +118,7 @@ export function mountArena(practice) {
 
     // Every finished trade goes up. A refusal is reported as plainly as an acceptance: being told why
     // the Arena would not count something is more useful than a silent failure.
-    async function submit(trade) {
+    async function submit(trade, attempt = 1) {
         if (!who) return;
         const body = {
             name: who.name,
@@ -142,6 +142,14 @@ export function mountArena(practice) {
             say(`Counted: ${sign}${money(Math.abs(result.pnl))}. Arena balance ${money(result.balance)}.`,
                 result.pnl >= 0 ? 'good' : 'bad');
             showWho(); showBoard();
+            return;
+        }
+        // A trade closed seconds ago sits in a minute the exchanges have not published yet, so the
+        // price history genuinely is not there to check against. That is worth waiting for rather
+        // than throwing the trade away, so it goes again in a minute, twice.
+        if (result.status === 503 && attempt <= 2) {
+            say('The price history for that minute is not published yet. Checking again in a minute — leave this open.');
+            setTimeout(() => submit(trade, attempt + 1), 62_000);
             return;
         }
         say(result.error ?? 'The Arena would not count that trade.', 'bad');
