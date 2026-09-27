@@ -92,6 +92,9 @@ export function createPractice({ book = null } = {}) {
                 state.history.unshift({
                     kind: 'liquidated', side: p.side, entry: p.entry, exit: price,
                     collateral: p.collateral, pnl: -p.collateral, at: Date.now(),
+                    // The Arena re-prices every trade against real history, so it needs the size and
+                    // the moment it opened, not only what it ended up worth.
+                    qty: p.qty, openedAt: p.openedAt,
                 });
                 state.position = null;
                 emit({ type: 'liquidated' });
@@ -183,6 +186,7 @@ export function createPractice({ book = null } = {}) {
         state.history.unshift({
             kind: 'closed', reason, side: p.side, entry: p.entry, exit: price,
             collateral: p.collateral, pnl: returned - p.collateral, at: Date.now(),
+            qty: p.qty, openedAt: p.openedAt,
         });
         state.position = null;
         emit({ type: reason === 'closed' ? 'closed' : reason });

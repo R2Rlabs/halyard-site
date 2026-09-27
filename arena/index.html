@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Halyard — practice perpetual futures with play money at live prices</title>
+<title>The Arena — Halyard</title>
 <meta name="description" content="Practice trading perpetual futures with 10,000 play USDT at live BTC prices. No deposit, no risk, no account. A product by r2rlabs.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,6 +126,20 @@ button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;b
 .fold[open] summary::before{content:"−"}
 .fold p{margin:9px 0 2px;font-size:12px;color:var(--muted);line-height:1.55}
 
+
+.arena-clock{font-family:var(--mono);font-size:12px;color:var(--amber);margin:-6px 0 10px}
+#arena-panel input[type=text]{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);font:inherit;font-size:14px}
+.arena-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+.arena-note.good{color:var(--green)}
+.arena-note.bad{color:var(--amber)}
+.lb{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px solid var(--border);font-size:13px}
+.lb:last-child{border-bottom:none}
+.lb .pos{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lb .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .bal{font-family:var(--mono)}
+.lb.mine{background:rgba(240,166,58,.08);border-radius:6px}
+.lb.mine .who{color:var(--amber);font-weight:600}
+
 /* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
 .tour-on{position:relative;z-index:9998;border-radius:10px;box-shadow:0 0 0 2px var(--amber),0 0 0 9999px rgba(6,8,12,.72);transition:box-shadow .2s}
 .tour-bubble{position:fixed;z-index:9999;background:var(--panel2);border:1px solid var(--amber);border-radius:12px;padding:15px 16px;box-shadow:0 18px 44px rgba(0,0,0,.55)}
@@ -157,15 +171,16 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 <body>
 
 <header>
-  <a class="brand" href="./">
+  <a class="brand" href="../">
     <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
     Halyard
   </a>
   <nav>
-    <a href="./" class="on">Trade</a>
-    <a href="./learn/slides/">Guide</a>
-    <a href="./learn/">Learn</a>
-    <a href="./about/">About</a>
+    <a href="../">Practice</a>
+    <a href="../learn/slides/">Guide</a>
+    <a href="./" class="on">Arena</a>
+    <a href="../learn/">Learn</a>
+    <a href="../">About</a>
   </nav>
   <span class="right">
     <button class="tour-btn" id="tour-btn">Show me around</button>
@@ -174,7 +189,7 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   </span>
 </header>
 
-<div class="strip"><strong>Practice mode</strong> <span>Play money at live prices. Nothing here is a deposit, and nothing can be won or lost.</span> <a href="./about/">Real trading is not open yet &mdash; how it will work &rarr;</a></div>
+<div class="strip"><strong>Arena</strong> <span>A tournament on play money. Every trade is re-checked against the real price history before it counts, so the table cannot be faked.</span> <a href="../">Just practising? Trade here instead &rarr;</a></div>
 
 <div class="market">
   <span class="sym">BTC-PERP</span>
@@ -230,6 +245,33 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   </div>
 
   <div class="side-col">
+
+    <div class="card" id="arena-panel">
+      <h2>The Arena · <span id="arena-season">Season one</span></h2>
+      <div class="arena-clock" id="arena-clock">&nbsp;</div>
+
+      <div id="arena-join">
+        <label for="arena-input">Pick a name to play under</label>
+        <input type="text" id="arena-input" maxlength="18" placeholder="anything you like" autocomplete="off">
+        <button class="primary" id="arena-claim">Join the season</button>
+        <div class="note">No email, no account, no password. The name is held by this browser, so nobody else can post scores under it — and clearing your browser data loses it.</div>
+      </div>
+
+      <div id="arena-you" hidden>
+        <div class="row"><span class="muted">Playing as</span><span id="arena-name">—</span></div>
+        <div class="row"><span class="muted">Arena balance</span><span id="arena-balance">—</span></div>
+        <div class="row"><span class="muted">Up or down</span><span id="arena-change">—</span></div>
+        <div class="row"><span class="muted">Trades counted</span><span id="arena-trades">0</span></div>
+      </div>
+
+      <div class="arena-note" id="arena-note">Close a trade and it is sent for checking. Your Arena balance is worked out by us, not by this page.</div>
+    </div>
+
+    <div class="card">
+      <h2>Leaderboard <span class="muted" style="font-weight:400" id="arena-count"></span></h2>
+      <div id="arena-board"><div class="empty">Loading…</div></div>
+    </div>
+
     <div class="card">
       <h2>Open a position</h2>
       <div class="side">
@@ -285,6 +327,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="./practice/app.js?v=32"></script>
+<script type="module" src="../practice/app.js?v=32"></script>
 </body>
 </html>
