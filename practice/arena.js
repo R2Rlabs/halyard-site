@@ -78,19 +78,31 @@ export function mountArena(practice) {
         season = data.season;
         showSeason();
 
-        const rows = data.board.slice(0, 10);
-        $('arena-board').innerHTML = rows.length
-            ? rows.map((row, i) => {
-                const mine = who && row.name.toLowerCase() === who.name.toLowerCase();
-                return `<div class="lb${mine ? ' mine' : ''}">
-                    <span class="pos">${i + 1}</span>
-                    <span class="who">${row.name.replace(/[<>&]/g, '')}</span>
-                    <span class="bal">${money(row.balance)}</span>
-                </div>`;
-            }).join('')
-            : '<div class="empty">Nobody has finished a trade yet. The first person to close one is top of the table.</div>';
+        // Buying BTC at the open and doing nothing sits in the table at whatever rank it has earned.
+        // It is the thing to beat, and on a quiet day it is the only other row.
+        const rows = [...data.board.slice(0, 10), ...(data.benchmark ? [data.benchmark] : [])]
+            .sort((a, b) => b.balance - a.balance);
 
-        if (rows.length) $('arena-count').textContent = `${data.players} playing`;
+        $('arena-board').innerHTML = rows.map((row, i) => {
+            const mine = who && !row.benchmark && row.name.toLowerCase() === who.name.toLowerCase();
+            const classes = `lb${mine ? ' mine' : ''}${row.benchmark ? ' bench' : ''}`;
+            const label = row.benchmark
+                ? `${row.name} <em>benchmark, not a player</em>`
+                : row.name.replace(/[<>&]/g, '');
+            return `<div class="${classes}">
+                <span class="pos">${row.benchmark ? '·' : i + 1}</span>
+                <span class="who">${label}</span>
+                <span class="bal">${money(row.balance)}</span>
+            </div>`;
+        }).join('');
+
+        $('arena-count').textContent = data.players === 1 ? '1 playing' : `${data.players} playing`;
+        if (!data.board.length) {
+            $('arena-empty').hidden = false;
+            $('arena-empty').textContent = 'Nobody has finished a trade yet. Beat the benchmark and the table is yours.';
+        } else {
+            $('arena-empty').hidden = true;
+        }
     }
 
     const say = (text, kind = '') => { const el = $('arena-note'); el.textContent = text; el.className = `arena-note ${kind}`; };

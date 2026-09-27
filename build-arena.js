@@ -38,7 +38,8 @@ const PANEL = `
 
     <div class="card">
       <h2>Leaderboard <span class="muted" style="font-weight:400" id="arena-count"></span></h2>
-      <div id="arena-board"><div class="empty">Loading…</div></div>
+      <div id="arena-board"></div>
+      <div class="empty" id="arena-empty">Loading…</div>
     </div>
 `;
 
@@ -55,6 +56,10 @@ const STYLES = `
 .lb .bal{font-family:var(--mono)}
 .lb.mine{background:rgba(240,166,58,.08);border-radius:6px}
 .lb.mine .who{color:var(--amber);font-weight:600}
+.lb.bench{opacity:.85}
+.lb.bench .who{color:var(--muted)}
+.lb.bench em{display:block;font-style:normal;font-size:10px;color:#6B7480;letter-spacing:.02em}
+.lb.bench .bal{color:var(--soft)}
 `;
 
 let html = fs.readFileSync('practice/index.html', 'utf8');

@@ -139,6 +139,10 @@ button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;b
 .lb .bal{font-family:var(--mono)}
 .lb.mine{background:rgba(240,166,58,.08);border-radius:6px}
 .lb.mine .who{color:var(--amber);font-weight:600}
+.lb.bench{opacity:.85}
+.lb.bench .who{color:var(--muted)}
+.lb.bench em{display:block;font-style:normal;font-size:10px;color:#6B7480;letter-spacing:.02em}
+.lb.bench .bal{color:var(--soft)}
 
 /* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
 .tour-on{position:relative;z-index:9998;border-radius:10px;box-shadow:0 0 0 2px var(--amber),0 0 0 9999px rgba(6,8,12,.72);transition:box-shadow .2s}
@@ -269,7 +273,8 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
 
     <div class="card">
       <h2>Leaderboard <span class="muted" style="font-weight:400" id="arena-count"></span></h2>
-      <div id="arena-board"><div class="empty">Loading…</div></div>
+      <div id="arena-board"></div>
+      <div class="empty" id="arena-empty">Loading…</div>
     </div>
 
     <div class="card">
@@ -327,6 +332,6 @@ footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-s
   Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
 </footer>
 
-<script type="module" src="../practice/app.js?v=33"></script>
+<script type="module" src="../practice/app.js?v=34"></script>
 </body>
 </html>

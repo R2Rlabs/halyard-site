@@ -231,10 +231,39 @@ async function touchBoard(env, player) {
     await env.STATS.put(k.board(), JSON.stringify(board.slice(0, 200)), TTL);
 }
 
+// What the same starting balance would be worth if you had simply bought BTC when the season opened
+// and done nothing since. It is the honest way to fill a quiet leaderboard: a target everybody can
+// see, obviously not a person, and the number most traders lose to without noticing.
+async function holdingBtc(env) {
+    if (Date.now() < Date.parse(SEASON.startsAt)) {
+        return { name: 'Holding BTC', balance: SEASON.startingBalance, benchmark: true };
+    }
+    const [opened, latest] = await Promise.all([
+        minuteRange(env, Date.parse(SEASON.startsAt)),
+        // A few minutes back, so the candle for that minute has certainly been published.
+        minuteRange(env, Date.now() - 240000),
+    ]);
+    if (opened?.error || latest?.error) return null;
+
+    const mid = (r) => (r.low + r.high) / 2;
+    const balance = SEASON.startingBalance * (mid(latest) / mid(opened));
+    return {
+        name: 'Holding BTC',
+        balance: Math.round(balance * 100) / 100,
+        benchmark: true,
+        since: Math.round(mid(opened)),
+    };
+}
+
 async function board(env) {
     const raw = await env.STATS.get(k.board());
     const rows = raw ? JSON.parse(raw) : [];
-    return json({ season: publicSeason(), players: rows.length, board: rows.slice(0, 50) });
+    return json({
+        season: publicSeason(),
+        players: rows.length,
+        board: rows.slice(0, 50),
+        benchmark: await holdingBtc(env),
+    });
 }
 
 const publicSeason = () => ({
