@@ -85,10 +85,13 @@ export function mountArena(practice) {
 
         $('arena-board').innerHTML = rows.map((row, i) => {
             const mine = who && !row.benchmark && row.name.toLowerCase() === who.name.toLowerCase();
-            const classes = `lb${mine ? ' mine' : ''}${row.benchmark ? ' bench' : ''}`;
+            const classes = `lb${mine ? ' mine' : ''}${row.benchmark ? ' bench' : ''}${row.house ? ' bot' : ''}`;
+            const clean = (s) => String(s ?? '').replace(/[<>&]/g, '');
             const label = row.benchmark
                 ? `${row.name} <em>benchmark, not a player</em>`
-                : row.name.replace(/[<>&]/g, '');
+                : row.house
+                    ? `${clean(row.name)} <em>house bot · ${clean(row.blurb)}</em>`
+                    : clean(row.name);
             return `<div class="${classes}">
                 <span class="pos">${row.benchmark ? '·' : i + 1}</span>
                 <span class="who">${label}</span>

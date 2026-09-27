@@ -60,6 +60,8 @@ const STYLES = `
 .lb.bench .who{color:var(--muted)}
 .lb.bench em{display:block;font-style:normal;font-size:10px;color:#6B7480;letter-spacing:.02em}
 .lb.bench .bal{color:var(--soft)}
+.lb.bot .who{color:var(--soft)}
+.lb.bot em{display:block;font-style:normal;font-size:10px;color:#6B7480}
 `;
 
 let html = fs.readFileSync('practice/index.html', 'utf8');
