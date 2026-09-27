@@ -10,30 +10,61 @@
 
 import { runBots as tickBots } from './bots.js';
 
-export const SEASON = {
-    id: 's1',
-    name: 'Season one',
-    // Set when the season opens. Trades outside the window are refused.
-    // A fortnight: long enough that somebody who finds it late still has a run at the table, short
-    // enough that the first season is over while anyone still remembers joining.
-    startsAt: '2026-09-27T00:00:00Z',
-    endsAt: '2026-10-11T00:00:00Z',
+// Seasons run one after another and the Arena works out which one it is in, so a new one opens on
+// its own rather than waiting for somebody to edit a constant at the right moment.
+//
+// Keys are namespaced by season id, so every season starts with an empty table and the one before it
+// stays readable.
+export const SEASONS = [
+    {
+        id: 's1',
+        name: 'Season one',
+        startsAt: '2026-09-27T00:00:00Z',
+        endsAt: '2026-10-11T00:00:00Z',
+    },
+    {
+        // A weekend: it starts on Friday evening in Europe, Friday afternoon in the States, and ends
+        // on Sunday night. Short enough that the table moves while people are watching it.
+        id: 's2',
+        name: 'Season two · the weekend',
+        startsAt: '2026-10-16T17:00:00Z',
+        endsAt: '2026-10-18T23:00:00Z',
+    },
+];
+
+const RULES = {
     startingBalance: 10000,
     maxLeverage: 5,
     maxTradesPerName: 300,
     feeRate: 0.0006,
 };
 
-// House bot names, so nobody can play under one.
+const within = (s, at) => at >= Date.parse(s.startsAt) && at < Date.parse(s.endsAt);
+
+// Exported so the rollover can be tested at any clock without waiting for October.
+export const seasonAt = (at) => SEASONS.find((s) => within(s, at)) ?? null;
+
+// The season trades are accepted into. Null between seasons, which is when the Arena is closed.
+const active = () => SEASONS.find((s) => within(s, Date.now())) ?? null;
+
+// The season the board shows: the live one, else the next one due, else the last one that ran.
+const shown = () => active()
+    ?? SEASONS.find((s) => Date.parse(s.startsAt) > Date.now())
+    ?? SEASONS[SEASONS.length - 1];
+
+// Everything that used to read a single SEASON constant reads whichever season applies now.
+const S = () => ({ ...RULES, ...shown() });
+const A = () => { const s = active(); return s ? { ...RULES, ...s } : null; };
+
 const RESERVED = new Set(['momentum', 'fade', 'coin flip', 'house', 'halyard', 'r2rlabs']);
 
 const NAME_OK = /^[A-Za-z0-9 _.-]{2,18}$/;
 const TTL = { expirationTtl: 60 * 60 * 24 * 120 };
 
 const k = {
-    player: (name) => `arena:${SEASON.id}:player:${name.toLowerCase()}`,
-    trade: (name, id) => `arena:${SEASON.id}:trade:${name.toLowerCase()}:${id}`,
-    board: () => `arena:${SEASON.id}:board`,
+    player: (name) => `arena:${S().id}:player:${name.toLowerCase()}`,
+    trade: (name, id) => `arena:${S().id}:trade:${name.toLowerCase()}:${id}`,
+    board: () => `arena:${S().id}:board`,
 };
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
@@ -47,7 +78,7 @@ const token = () => {
 };
 
 const now = () => Date.now();
-const seasonOpen = () => now() >= Date.parse(SEASON.startsAt) && now() < Date.parse(SEASON.endsAt);
+const seasonOpen = () => active() !== null;
 
 // --- price verification -------------------------------------------------------------------------
 
@@ -148,13 +179,13 @@ async function claim(env, body) {
     await writePlayer(env, name, {
         name,
         secret,
-        balance: SEASON.startingBalance,
+        balance: S().startingBalance,
         trades: 0,
         best: 0,
         worst: 0,
         joinedAt: now(),
     });
-    return json({ name, secret, balance: SEASON.startingBalance, season: publicSeason() });
+    return json({ name, secret, balance: S().startingBalance, season: publicSeason() });
 }
 
 // --- trades -------------------------------------------------------------------------------------
@@ -164,7 +195,7 @@ async function claim(env, body) {
 async function applyTrade(env, name, trade) {
     const player = await readPlayer(env, name);
     if (!player) return { error: 'Claim a name first.', status: 404 };
-    if (player.trades >= SEASON.maxTradesPerName) return { error: 'Trade limit reached for this season.', status: 429 };
+    if (player.trades >= S().maxTradesPerName) return { error: 'Trade limit reached for this season.', status: 429 };
 
     const { side, qty, entry, exit, collateral } = trade;
     const openedAt = Number(trade.openedAt);
@@ -176,15 +207,15 @@ async function applyTrade(env, name, trade) {
     }
 
     // Inside the season, in the right order, and not from the future.
-    if (openedAt < Date.parse(SEASON.startsAt) || closedAt > now() + 60000 || closedAt <= openedAt) {
+    if (openedAt < Date.parse(S().startsAt) || closedAt > now() + 60000 || closedAt <= openedAt) {
         return { error: 'Those times are outside the season.', status: 400 };
     }
 
     // You cannot risk what you do not have, and you cannot exceed the leverage everyone else has.
     if (collateral > player.balance + 1e-9) return { error: 'That is more collateral than you have.', status: 400 };
     const notional = qty * entry;
-    if (notional > collateral * SEASON.maxLeverage * 1.01) {
-        return { error: `That is more than ${SEASON.maxLeverage}x.`, status: 400 };
+    if (notional > collateral * S().maxLeverage * 1.01) {
+        return { error: `That is more than ${S().maxLeverage}x.`, status: 400 };
     }
 
     // The same trade twice is the oldest trick there is.
@@ -202,7 +233,7 @@ async function applyTrade(env, name, trade) {
 
     // We compute the result ourselves. Whatever the browser thought it made is irrelevant.
     const gross = side * qty * (exit - entry);
-    const fees = notional * SEASON.feeRate + qty * exit * SEASON.feeRate;
+    const fees = notional * S().feeRate + qty * exit * S().feeRate;
     const pnl = Math.max(gross - fees, -collateral);   // never lose more than the collateral
 
     player.balance = Math.max(0, player.balance + pnl);
@@ -258,18 +289,18 @@ async function touchBoard(env, player) {
 // and done nothing since. It is the honest way to fill a quiet leaderboard: a target everybody can
 // see, obviously not a person, and the number most traders lose to without noticing.
 async function holdingBtc(env) {
-    if (Date.now() < Date.parse(SEASON.startsAt)) {
-        return { name: 'Holding BTC', balance: SEASON.startingBalance, benchmark: true };
+    if (Date.now() < Date.parse(S().startsAt)) {
+        return { name: 'Holding BTC', balance: S().startingBalance, benchmark: true };
     }
     const [opened, latest] = await Promise.all([
-        minuteRange(env, Date.parse(SEASON.startsAt)),
+        minuteRange(env, Date.parse(S().startsAt)),
         // A few minutes back, so the candle for that minute has certainly been published.
         minuteRange(env, Date.now() - 240000),
     ]);
     if (opened?.error || latest?.error) return null;
 
     const mid = (r) => (r.low + r.high) / 2;
-    const balance = SEASON.startingBalance * (mid(latest) / mid(opened));
+    const balance = S().startingBalance * (mid(latest) / mid(opened));
     return {
         name: 'Holding BTC',
         balance: Math.round(balance * 100) / 100,
@@ -290,13 +321,15 @@ async function board(env) {
 }
 
 const publicSeason = () => ({
-    id: SEASON.id,
-    name: SEASON.name,
-    startsAt: SEASON.startsAt,
-    endsAt: SEASON.endsAt,
-    startingBalance: SEASON.startingBalance,
-    maxLeverage: SEASON.maxLeverage,
+    id: S().id,
+    name: S().name,
+    startsAt: S().startsAt,
+    endsAt: S().endsAt,
+    startingBalance: S().startingBalance,
+    maxLeverage: S().maxLeverage,
     open: seasonOpen(),
+    // When the Arena is shut, this is the thing worth saying.
+    opensAt: seasonOpen() ? null : S().startsAt,
 });
 
 async function me(env, url) {
@@ -316,7 +349,9 @@ async function me(env, url) {
 
 // Driven by the cron trigger, and by hand with the stats token when we want to watch it work.
 export async function runBots(env) {
-    return tickBots(env, { minuteRange, readPlayer, writePlayer, applyTrade, season: SEASON });
+    const season = A();
+    if (!season) return;   // between seasons the bots sit out too
+    return tickBots(env, { minuteRange, readPlayer, writePlayer, applyTrade, season });
 }
 
 export async function arena(request, env, url) {

@@ -19,6 +19,8 @@ const PANEL = `
       <h2>The Arena · <span id="arena-season">Season one</span></h2>
       <div class="arena-clock" id="arena-clock">&nbsp;</div>
 
+      <div class="arena-shut" id="arena-shut" hidden></div>
+
       <div id="arena-join">
         <label for="arena-input">Pick a name to play under</label>
         <input type="text" id="arena-input" maxlength="18" placeholder="anything you like" autocomplete="off">
@@ -46,6 +48,7 @@ const PANEL = `
 const STYLES = `
 .arena-clock{font-family:var(--mono);font-size:12px;color:var(--amber);margin:-6px 0 10px}
 #arena-panel input[type=text]{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);font:inherit;font-size:14px}
+.arena-shut{font-size:12px;color:var(--soft);line-height:1.55;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:11px 12px;margin-bottom:10px}
 .arena-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
 .arena-note.good{color:var(--green)}
 .arena-note.bad{color:var(--amber)}

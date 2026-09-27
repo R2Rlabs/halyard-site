@@ -34,6 +34,15 @@ const board = () => call('/arena/board');
 const me = (name) => call(`/arena/me?name=${encodeURIComponent(name)}`);
 const sendTrade = (trade) => call('/arena/trade', { method: 'POST', body: JSON.stringify(trade) });
 
+// "Friday at 18:00" rather than an ISO timestamp, in the reader's own time zone.
+function when(iso) {
+    const at = new Date(iso);
+    if (Number.isNaN(at.getTime())) return 'soon';
+    const day = at.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+    const time = at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return `${day} at ${time}`;
+}
+
 // Counts down to the end of the season, or says it has finished.
 function untilEnd(endsAt) {
     const left = Date.parse(endsAt) - Date.now();
@@ -53,7 +62,7 @@ export function mountArena(practice) {
     // --- painting ---------------------------------------------------------------------------
 
     function showWho() {
-        $('arena-join').hidden = !!who;
+        $('arena-join').hidden = !!who || season?.open === false;
         $('arena-you').hidden = !who;
         if (who) {
             $('arena-name').textContent = who.name;
@@ -69,6 +78,19 @@ export function mountArena(practice) {
     function showSeason() {
         if (!season) return;
         $('arena-season').textContent = season.name;
+
+        // Between seasons the Arena is shut, and saying when it opens is more use than a dead clock.
+        if (season.open === false) {
+            $('arena-clock').textContent = season.opensAt ? `Opens ${when(season.opensAt)}` : 'Closed';
+            $('arena-join').hidden = true;
+            $('arena-shut').hidden = false;
+            $('arena-shut').textContent = season.opensAt
+                ? `The Arena is between seasons. ${season.name} opens ${when(season.opensAt)} — the table below is where the last one finished.`
+                : 'The Arena is closed.';
+            return;
+        }
+        $('arena-shut').hidden = true;
+        $('arena-join').hidden = !!who;
         $('arena-clock').textContent = untilEnd(season.endsAt);
     }
 
