@@ -1,5 +1,5 @@
-// Reads a few Arena keys straight out of KV, for watching the bots without a token.
-// Usage: node _peek.js
+// Reads the Arena players straight out of KV, so the house bots can be watched without the token.
+// Usage: node peek.js
 const { execFileSync } = require('child_process');
 
 const NS = '426fe74d9e9f482ab4b338029f76e7db';

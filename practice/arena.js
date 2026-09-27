@@ -83,7 +83,11 @@ export function mountArena(practice) {
         const rows = [...data.board.slice(0, 10), ...(data.benchmark ? [data.benchmark] : [])]
             .sort((a, b) => b.balance - a.balance);
 
-        $('arena-board').innerHTML = rows.map((row, i) => {
+        // The benchmark sits wherever its balance puts it but takes no rank, so the players are
+        // still numbered 1, 2, 3 down the table.
+        let rank = 0;
+        $('arena-board').innerHTML = rows.map((row) => {
+            if (!row.benchmark) rank += 1;
             const mine = who && !row.benchmark && row.name.toLowerCase() === who.name.toLowerCase();
             const classes = `lb${mine ? ' mine' : ''}${row.benchmark ? ' bench' : ''}${row.house ? ' bot' : ''}`;
             const clean = (s) => String(s ?? '').replace(/[<>&]/g, '');
@@ -93,7 +97,7 @@ export function mountArena(practice) {
                     ? `${clean(row.name)} <em>house bot · ${clean(row.blurb)}</em>`
                     : clean(row.name);
             return `<div class="${classes}">
-                <span class="pos">${row.benchmark ? '·' : i + 1}</span>
+                <span class="pos">${row.benchmark ? "·" : rank}</span>
                 <span class="who">${label}</span>
                 <span class="bal">${money(row.balance)}</span>
             </div>`;
