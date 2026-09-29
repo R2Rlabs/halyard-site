@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes — Halyard</title>
+<meta name="description" content="What we measured while building Halyard: settlement latency on Trac, and what three trading bots cost themselves in fees.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Notes — Halyard">
+<meta property="og:description" content="What we measured while building a perpetual futures exchange on Trac, with the numbers and the method attached.">
+<meta property="og:site_name" content="Halyard · r2rlabs">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.wrap{max-width:720px;margin:0 auto;padding:40px 18px 80px}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.15;font-weight:600;margin:0 0 8px}
+.lead{color:var(--soft);font-size:17px;margin:0 0 30px}
+.note{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;box-shadow:0 0 0 1px rgba(240,166,58,.07), 0 0 20px rgba(240,166,58,.05), 0 6px 20px rgba(0,0,0,.35)}
+.note:hover{border-color:#39424f}
+.note .when{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.note h2{font-size:20px;font-weight:600;margin:4px 0 6px;color:var(--text)}
+.note p{color:var(--soft);font-size:15px;margin:0}
+footer{border-top:1px solid var(--border);padding:22px 18px 60px;color:var(--muted);font-size:12px}
+footer .wrap{padding:0}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="pill">Notes</span>
+</header>
+
+<div class="wrap">
+  <h1>Notes</h1>
+  <p class="lead">Things we measured while building this, with the numbers and the method attached. Mostly written because we went looking for the answer and could not find one.</p>
+
+  <a class="note" href="./bots-and-fees/">
+    <div class="when">28 September 2026</div>
+    <h2>Direction is noise. The bill is not.</h2>
+    <p>Three bots, 145 trades, 42 hours. Which one was right about the market flipped completely in a day. The one number that never moved was the fees.</p>
+  </a>
+
+  <a class="note" href="./trac-settlement-latency/">
+    <div class="when">26 September 2026</div>
+    <h2>How long a write takes to settle on a Trac subnet</h2>
+    <p>Twenty samples on a deployed subnet: median 10.4s, p90 26.3s, max 28.7s — plus the four things that cost us a day getting there.</p>
+  </a>
+</div>
+
+<footer>
+  <div class="wrap">
+    r2rlabs builds <a href="../">Halyard</a>, a perpetual futures exchange settling on Trac. Questions: <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>.
+  </div>
+</footer>
+
+</body>
+</html>

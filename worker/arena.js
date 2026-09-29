@@ -238,6 +238,10 @@ async function applyTrade(env, name, trade) {
 
     player.balance = Math.max(0, player.balance + pnl);
     player.trades += 1;
+    // Kept so a season can be decomposed into what direction earned and what the fees took, measured
+    // rather than worked back from the rule.
+    player.fees = Math.round(((player.fees ?? 0) + fees) * 100) / 100;
+    player.gross = Math.round(((player.gross ?? 0) + gross) * 100) / 100;
     player.best = Math.max(player.best, pnl);
     player.worst = Math.min(player.worst, pnl);
     player.lastAt = now();

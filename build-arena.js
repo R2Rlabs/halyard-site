@@ -36,6 +36,7 @@ const PANEL = `
       </div>
 
       <div class="arena-note" id="arena-note">Close a trade and it is sent for checking. Your Arena balance is worked out by us, not by this page.</div>
+      <div class="arena-note"><a href="../notes/bots-and-fees/">Why are the house bots all losing?</a></div>
     </div>
 
     <div class="card">

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction is noise. The bill is not. — r2rlabs</title>
+<meta name="description" content="Three bots, one buying momentum, one fading it, one flipping a coin. After 42 hours all three are down — and which one was right about the market changed completely in a day. The fees did not move at all.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Direction is noise. The bill is not.">
+<meta property="og:description" content="Three trading bots, 145 trades, 42 hours. Which one was right about the market flipped completely in a day. The one number that never moved was the fees.">
+<meta property="og:site_name" content="Halyard · r2rlabs">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+header{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;text-decoration:none;color:var(--text)}
+.pill{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(240,166,58,.12);color:var(--amber)}
+.wrap{max-width:720px;margin:0 auto;padding:40px 18px 80px}
+h1{font-size:clamp(27px,4.4vw,39px);line-height:1.18;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
+.byline{color:var(--muted);font-size:13px;font-family:var(--mono);margin:0 0 32px}
+h2{font-size:clamp(20px,2.6vw,24px);font-weight:600;margin:42px 0 12px;letter-spacing:-.01em}
+p{color:var(--soft);margin:0 0 18px}
+strong{color:var(--text);font-weight:600}
+em{color:var(--text)}
+code{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:1px 5px;color:var(--text)}
+.callout{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:0 12px 12px 0;padding:18px 20px;margin:0 0 26px;box-shadow:0 0 24px rgba(240,166,58,.05)}
+.callout p:last-child{margin-bottom:0}
+table{width:100%;border-collapse:collapse;margin:0 0 10px;font-size:15px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+td{padding:11px 10px;border-bottom:1px solid var(--border);color:var(--soft)}
+td:not(:first-child){font-family:var(--mono);text-align:right}
+th:not(:first-child){text-align:right}
+tr:last-child td{border-bottom:none}
+.green{color:var(--green)}.red{color:var(--red)}
+.cap{font-size:12px;color:var(--muted);margin:0 0 26px}
+ul{color:var(--soft);padding-left:22px;margin:0 0 18px}
+li{margin-bottom:9px}
+.lede{font-size:18px;color:var(--text)}
+hr{border:none;border-top:1px solid var(--border);margin:44px 0 22px}
+.foot{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../../">
+    <svg width="24" height="24" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <span class="pill">Notes</span>
+</header>
+
+<div class="wrap">
+  <h1>Direction is noise. The bill is not.</h1>
+  <p class="byline">r2rlabs · 28 September 2026</p>
+
+  <p class="lede">We put three bots in our practice tournament. One buys whatever has been rising. One bets against the last move. The third picks a side at random, like flipping a coin. After 42 hours and 145 trades, all three are down — and the interesting part is not that they lost, but what changed and what did not.</p>
+
+  <h2>Where they are now</h2>
+
+  <table>
+    <tr><th>Bot</th><th>Trades</th><th>Net</th><th>Fees</th><th>Direction</th></tr>
+    <tr><td>Momentum</td><td>44</td><td class="red">−35.25</td><td class="red">−52.71</td><td class="green">+17.46</td></tr>
+    <tr><td>Fade</td><td>45</td><td class="red">−73.80</td><td class="red">−53.81</td><td class="red">−19.99</td></tr>
+    <tr><td>Coin flip</td><td>56</td><td class="red">−87.51</td><td class="red">−66.91</td><td class="red">−20.60</td></tr>
+  </table>
+  <p class="cap">Starting balance 10,000 play USDT each. "Direction" is what the calls were worth before fees.</p>
+
+  <p><strong>Momentum was right about the market and still lost.</strong> Its positions earned 17.46. The fees took 52.71. It finished down 35 for being correct.</p>
+
+  <h2>The part we did not expect</h2>
+
+  <p>We wrote most of this yesterday, 19 hours earlier, when the table looked like this:</p>
+
+  <table>
+    <tr><th>Bot</th><th>Trades</th><th>Direction then</th><th>Direction now</th></tr>
+    <tr><td>Momentum</td><td>24 → 44</td><td class="red">−2.82</td><td class="green">+17.46</td></tr>
+    <tr><td>Fade</td><td>24 → 45</td><td class="green">+2.84</td><td class="red">−19.99</td></tr>
+    <tr><td>Coin flip</td><td>31 → 56</td><td class="green">+1.72</td><td class="red">−20.60</td></tr>
+  </table>
+  <p class="cap">The same three programs, the same rules, one day apart.</p>
+
+  <p>Yesterday the coin flip was <em>ahead</em> on direction and losing anyway, and we had a headline about it. Today the coin flip is well behind and Momentum has taken its place. Every bot's judgement swung by roughly 20 in a day, and two of the three changed sign.</p>
+
+  <p>Meanwhile the fees went from 28.76, 28.76 and 37.14 to 52.71, 53.81 and 66.91 — up, steadily, in proportion to nothing but the number of trades. No swings, no sign changes, no luck.</p>
+
+  <div class="callout">
+    <p><strong>That is the whole finding.</strong> Which way you were right is noise that reverses inside a day. What you paid to find out is a bill that only ever grows, and it grows with how often you trade rather than how well.</p>
+  </div>
+
+  <h2>The arithmetic</h2>
+
+  <p>Each bot risks 5% of its balance at 2× leverage, so a position is about 1,000 USDT. The fee is 0.06% each way, so a round trip costs about 1.20. The coin flip has done 56 of them, which is 67 spent before it is right or wrong about anything.</p>
+
+  <p>For it to break even, its guesses had to be worth more than 0.12% per round trip. Random guesses are worth zero on average, so over enough trades it loses precisely the fees. That is not a flaw in the bot. It is what the word "random" means, and it is the floor every strategy has to clear before skill enters the room.</p>
+
+  <h2>The check that made us trust the numbers</h2>
+
+  <p>Momentum and Fade are mirror images by construction: one buys what the other sells, off the same price at the same moment. If the accounting were wrong, that symmetry would be the first thing to break.</p>
+
+  <p>It holds. Yesterday their direction figures were <strong>−2.82</strong> and <strong>+2.84</strong>, two hundredths apart across 48 trades. Today they are <strong>+17.46</strong> and <strong>−19.99</strong>, still close to equal and opposite, with the gap explained by one extra trade and different moments of entry.</p>
+
+  <p>Nobody designed that as a test. It is what falls out of a matched book that adds up, and it is the strongest evidence we have that the ledger is honest.</p>
+
+  <h2>What this does not show</h2>
+  <ul>
+    <li><strong>Nothing about whether momentum beats fading.</strong> 145 trades over two days is far too few, and the swing above is exactly why. Anyone who quotes this as a strategy result has misread it.</li>
+    <li><strong>The fee split is derived, not measured.</strong> We worked it back from the rule rather than reading it off each trade. We have since started recording fees and gross profit per trade, so the season-end version will be measured.</li>
+    <li><strong>Play money, simulated counterparties.</strong> The prices are real and every trade is verified against real price history before it counts, but nobody won or lost anything.</li>
+    <li><strong>These strategies are deliberately naive.</strong> They are a floor, not an argument that trading cannot work.</li>
+  </ul>
+
+  <h2>Watch them yourself</h2>
+
+  <p>All three are still going, every fifteen minutes, in <a href="../../arena/">the Arena</a>. They are marked <em>house bot</em> with their strategy written beside them, and their trades go through exactly the same verification as a human's — both prices checked against what BTC really did before anything reaches a balance. They cannot flatter themselves any more than you can.</p>
+
+  <p>Season one closes on 11 October, and we will publish the final numbers then, measured rather than derived. If you want to find out whether you can beat a coin flip after costs, the table is open and it is free.</p>
+
+  <hr>
+  <p class="foot">r2rlabs builds <a href="../../">Halyard</a>, a perpetual futures exchange settling on Trac. Practice is free, uses play money, and needs no account. Questions: <a href="mailto:hello@r2rlabs.com">hello@r2rlabs.com</a>.</p>
+</div>
+
+</body>
+</html>
