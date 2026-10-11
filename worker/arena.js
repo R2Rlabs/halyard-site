@@ -47,7 +47,13 @@ export const seasonAt = (at) => SEASONS.find((s) => within(s, at)) ?? null;
 // The season trades are accepted into. Null between seasons, which is when the Arena is closed.
 const active = () => SEASONS.find((s) => within(s, Date.now())) ?? null;
 
-// The season the board shows: the live one, else the next one due, else the last one that ran.
+// The last season that has finished, if any.
+const lastFinished = () => [...SEASONS].reverse().find((s) => Date.parse(s.endsAt) <= Date.now()) ?? null;
+
+// The season whose table is worth showing: the live one, else the one that just finished.
+const boardSeason = () => active() ?? lastFinished() ?? SEASONS[0];
+
+// The season the countdown describes: the live one, else the next one due, else the last one that ran.
 const shown = () => active()
     ?? SEASONS.find((s) => Date.parse(s.startsAt) > Date.now())
     ?? SEASONS[SEASONS.length - 1];
@@ -64,7 +70,7 @@ const TTL = { expirationTtl: 60 * 60 * 24 * 120 };
 const k = {
     player: (name) => `arena:${S().id}:player:${name.toLowerCase()}`,
     trade: (name, id) => `arena:${S().id}:trade:${name.toLowerCase()}:${id}`,
-    board: () => `arena:${S().id}:board`,
+    board: (id = boardSeason().id) => `arena:${id}:board`,
 };
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
@@ -293,18 +299,21 @@ async function touchBoard(env, player) {
 // and done nothing since. It is the honest way to fill a quiet leaderboard: a target everybody can
 // see, obviously not a person, and the number most traders lose to without noticing.
 async function holdingBtc(env) {
-    if (Date.now() < Date.parse(S().startsAt)) {
-        return { name: 'Holding BTC', balance: S().startingBalance, benchmark: true };
+    const season = boardSeason();
+    if (Date.now() < Date.parse(season.startsAt)) {
+        return { name: 'Holding BTC', balance: RULES.startingBalance, benchmark: true };
     }
+    // A finished season is measured to its close; a live one to a few minutes ago, so the candle for
+    // that minute has certainly been published.
+    const until = Math.min(Date.parse(season.endsAt), Date.now() - 240000);
     const [opened, latest] = await Promise.all([
-        minuteRange(env, Date.parse(S().startsAt)),
-        // A few minutes back, so the candle for that minute has certainly been published.
-        minuteRange(env, Date.now() - 240000),
+        minuteRange(env, Date.parse(season.startsAt)),
+        minuteRange(env, until),
     ]);
     if (opened?.error || latest?.error) return null;
 
     const mid = (r) => (r.low + r.high) / 2;
-    const balance = S().startingBalance * (mid(latest) / mid(opened));
+    const balance = RULES.startingBalance * (mid(latest) / mid(opened));
     return {
         name: 'Holding BTC',
         balance: Math.round(balance * 100) / 100,
@@ -316,11 +325,14 @@ async function holdingBtc(env) {
 async function board(env) {
     const raw = await env.STATS.get(k.board());
     const rows = raw ? JSON.parse(raw) : [];
+    const table = boardSeason();
     return json({
         season: publicSeason(),
         players: rows.length,
         board: rows.slice(0, 50),
         benchmark: await holdingBtc(env),
+        // Which season the table is from, and whether it is the final word on it.
+        boardSeason: { id: table.id, name: table.name, finished: Date.parse(table.endsAt) <= Date.now() },
     });
 }
 

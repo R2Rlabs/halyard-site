@@ -85,7 +85,7 @@ export function mountArena(practice) {
             $('arena-join').hidden = true;
             $('arena-shut').hidden = false;
             $('arena-shut').textContent = season.opensAt
-                ? `The Arena is between seasons. ${season.name} opens ${when(season.opensAt)} — the table below is where the last one finished.`
+                ? `The Arena is between seasons. ${season.name} opens ${when(season.opensAt)}. The table below is where the last one finished.`
                 : 'The Arena is closed.';
             return;
         }
@@ -125,7 +125,12 @@ export function mountArena(practice) {
             </div>`;
         }).join('');
 
-        $('arena-count').textContent = data.players === 1 ? '1 playing' : `${data.players} playing`;
+        // Between seasons the table belongs to the one that just finished, and saying so is the
+        // difference between a result and a mystery.
+        const from = data.boardSeason;
+        $('arena-count').textContent = from?.finished
+            ? `${from.name} · final`
+            : data.players === 1 ? '1 playing' : `${data.players} playing`;
         if (!data.board.length) {
             $('arena-empty').hidden = false;
             $('arena-empty').textContent = 'Nobody has finished a trade yet. Beat the benchmark and the table is yours.';
