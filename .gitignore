@@ -1,3 +1,0 @@
-
-# wrangler caches: these hold the account id and account name, which is an email address
-worker/.wrangler/
