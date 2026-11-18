@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halyard practice — trade with play money at real prices</title>
+<meta name="description" content="Practice trading perpetual futures with 10,000 play USDT at live BTC prices. No deposit, no risk, no account. A product by r2rlabs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M18 50 L38 8 L38 50 Z' fill='%23F0A63A'/%3E%3Cpath d='M42 18 L50 50 L42 50 Z' fill='%23F0A63A' opacity='0.55'/%3E%3Cline x1='10' y1='56' x2='54' y2='56' stroke='%23F0A63A' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#0B0E13;--panel:#12161D;--panel2:#161B23;--border:#242B35;--text:#E7EAEE;--muted:#98A2B0;--soft:#A9B2BF;--amber:#F0A63A;--green:#34C77B;--red:#F2555A;--mono:'IBM Plex Mono',ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+
+header{display:flex;align-items:center;gap:18px;height:52px;padding:0 16px;border-bottom:1px solid var(--border);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;text-decoration:none;color:var(--text)}
+nav{display:flex;gap:2px}
+nav a{padding:7px 11px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
+nav a.on{color:var(--text);background:#1C222B}
+.right{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:4px;background:var(--green);display:inline-block}
+.dot.warn{background:var(--amber)}
+.balance{padding:6px 12px;border:1px solid var(--border);border-radius:9px;font-family:var(--mono);font-size:13px;white-space:nowrap}
+
+.strip{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px 16px;padding:12px 16px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(240,166,58,.14),rgba(240,166,58,.05));box-shadow:inset 0 0 26px rgba(240,166,58,.07)}
+.strip strong{font-size:clamp(19px,2.6vw,27px);font-weight:700;letter-spacing:.09em;color:var(--amber);text-transform:uppercase;line-height:1.1}
+.strip span{font-size:13px;color:var(--soft)}
+.strip a{font-size:13px;margin-left:auto;white-space:nowrap}
+@media(max-width:620px){.strip a{margin-left:0}}
+.market{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
+.sym{padding:7px 12px;border:1px solid var(--border);border-radius:9px;font-weight:600}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat .k{font-size:11px;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-size:14px}
+.big{font-family:var(--mono);font-size:24px;font-weight:600}
+.tag{margin-left:auto;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--amber);background:rgba(240,166,58,.12)}
+
+main{display:flex;gap:10px;padding:10px;align-items:flex-start}
+.left{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.side-col{width:296px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.ladder-col{width:358px;flex-shrink:0}
+.ladder{display:flex;flex-direction:column;gap:3px}
+.ladder-head{display:grid;grid-template-columns:1fr 86px 1fr;gap:10px;font-size:12px;color:var(--muted);margin-bottom:9px}
+.ladder-head span:first-child{text-align:right}
+.ladder-head span:nth-child(2){text-align:center}
+.rung{display:grid;grid-template-columns:1fr 86px 1fr;align-items:center;gap:10px;height:31px;font-size:15px}
+.rung .px{font-family:var(--mono);text-align:center;color:var(--muted);font-size:15px}
+.rung.here{background:rgba(240,166,58,.09);border-radius:4px}
+.rung.marked .px{color:var(--text)}
+.rung .px u{display:block;text-decoration:none;font-family:'IBM Plex Sans',sans-serif;font-size:9px;letter-spacing:.03em;text-transform:uppercase;line-height:1.1;margin-top:1px}
+.rung .px u.entry{color:var(--amber)}
+.rung .px u.stop{color:var(--red)}
+.rung .px u.target{color:var(--green)}
+.rung.here .px{color:var(--amber);font-weight:600}
+.side-cell{display:flex;align-items:center;gap:7px;height:22px;overflow:hidden}
+.side-cell.l{justify-content:flex-end}
+.side-cell i{display:block;height:100%;border-radius:3px;flex-shrink:0}
+.side-cell.l i{background:rgba(52,199,123,.5)}
+.side-cell.s i{background:rgba(242,85,90,.5)}
+.side-cell b{font-family:var(--mono);font-weight:500;font-size:14px;white-space:nowrap}
+.bookbar{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.bookrow{display:grid;grid-template-columns:52px 1fr 64px;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.bookrow span:last-child{font-family:var(--mono);text-align:right;color:var(--soft)}
+.bar{height:9px;border-radius:4px;background:#1A2029;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:4px;transition:width .3s}
+.bar.long span{background:var(--green)}
+.bar.short span{background:var(--red)}
+.bar.wait span{background:var(--amber)}
+.ladder-foot{margin-top:13px;padding-top:11px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.55}
+@media(max-width:900px){.ladder-col{display:none}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 0 0 1px rgba(240,166,58,.07), 0 0 20px rgba(240,166,58,.05), 0 6px 20px rgba(0,0,0,.35)}
+.card h2{font-size:14px;font-weight:600;margin:0 0 10px}
+.ladder-col .card h2{font-size:15px;margin-bottom:12px}
+#chart-wrap{position:relative;height:min(58vh,520px);min-height:320px;padding:10px 10px 4px}
+#chart{width:100%;height:100%;display:block}
+.chart-note{position:absolute;left:16px;top:14px;font-size:11px;color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+.tablewrap{overflow-x:auto}
+.tablewrap table{min-width:540px}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:7px 8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+td.name{font-family:inherit;font-weight:600}
+.badge{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;font-family:inherit}
+.badge.long{color:var(--green);background:rgba(52,199,123,.12)}
+.badge.short{color:var(--red);background:rgba(242,85,90,.12)}
+.empty{color:var(--muted);padding:12px 8px;font-size:13px}
+.hist{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 8px;border-bottom:1px solid var(--border)}
+
+.side{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:var(--bg);border-radius:9px;margin-bottom:12px}
+.side button{height:36px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-weight:600;cursor:pointer}
+.side button[aria-pressed=true]{background:var(--green);color:var(--bg)}
+.side button.short[aria-pressed=true]{background:var(--red);color:#fff}
+label{display:block;font-size:11px;color:var(--muted);margin:8px 0 4px}
+input[type=number]{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--text);font-family:var(--mono);font-size:14px}
+input[type=range]{width:100%;accent-color:var(--green)}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;font-size:12px}
+.row span:last-child{font-family:var(--mono)}
+.muted{color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}
+button.primary{width:100%;height:42px;margin-top:10px;border:none;border-radius:10px;background:var(--green);color:var(--bg);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+button.primary.short{background:var(--red);color:#fff}
+button.primary:disabled{opacity:.45;cursor:default}
+button.ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:12px;cursor:pointer}
+.note{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.5}
+.warnbox{border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:9px;background:var(--panel2);padding:10px 12px;font-size:12px;color:var(--soft);line-height:1.5}
+.chart-tools{position:absolute;left:16px;right:16px;top:12px;display:flex;align-items:center;gap:10px;z-index:2}
+.tfs{margin-left:auto;display:flex;gap:2px}
+.tfs button{padding:3px 9px;border:none;border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.tfs button.on{background:#1C222B;color:var(--text)}
+.pcts{display:flex;gap:5px;margin-top:7px}
+.pcts button{flex:1;padding:5px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.pcts button:hover{color:var(--text)}
+.bands{display:flex;gap:5px;margin-top:7px}
+.bands button{flex:1;padding:6px 0;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--muted);font:inherit;font-size:11px;cursor:pointer}
+.bands button:hover:not(:disabled){color:var(--text)}
+.bands button.on{border-color:var(--amber);color:var(--amber);background:rgba(240,166,58,.08)}
+.bands button:disabled{opacity:.35;cursor:not-allowed}
+.band-note{font-size:11px;color:var(--muted);line-height:1.5;margin:5px 0 4px}
+.fold{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px}
+.fold summary{font-size:12px;font-weight:600;cursor:pointer;color:var(--soft);list-style:none}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary::before{content:"+";color:var(--amber);margin-right:7px;font-family:var(--mono)}
+.fold[open] summary::before{content:"−"}
+.fold p{margin:9px 0 2px;font-size:12px;color:var(--muted);line-height:1.55}
+
+/* The guided walkthrough: a ring on the real control, everything else dimmed by the same shadow. */
+.tour-on{position:relative;z-index:9998;border-radius:10px;box-shadow:0 0 0 2px var(--amber),0 0 0 9999px rgba(6,8,12,.72);transition:box-shadow .2s}
+.tour-bubble{position:fixed;z-index:9999;background:var(--panel2);border:1px solid var(--amber);border-radius:12px;padding:15px 16px;box-shadow:0 18px 44px rgba(0,0,0,.55)}
+.tour-bubble h3{margin:2px 0 7px;font-size:16px;font-weight:600}
+.tour-bubble p{margin:0;font-size:13px;line-height:1.6;color:var(--soft)}
+.tour-bubble strong{color:var(--text);font-weight:600}
+.tour-step{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.04em}
+.tour-nav{display:flex;align-items:center;gap:12px;margin-top:13px}
+.tour-next{padding:8px 18px;border:none;border-radius:9px;background:var(--amber);color:var(--bg);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.tour-skip{border:none;background:none;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;margin-left:auto;padding:0}
+.tour-skip:hover{color:var(--text)}
+.tour-hint{font-size:12px;color:var(--amber)}
+.tour-btn{padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.tour-btn:hover{color:var(--text);border-color:#39424f}
+.tpsl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.tpsl input{padding:8px 9px;font-size:13px}
+footer{padding:16px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;line-height:1.6}
+
+@media(max-width:900px){
+  main{flex-direction:column}
+  .side-col{width:100%;order:-1}
+  #chart-wrap{height:250px}
+  nav{display:none}
+  table th:nth-child(4),table td:nth-child(4),table th:nth-child(6),table td:nth-child(6){display:none}
+}
+@media(max-width:560px){header{gap:10px;padding:0 12px}.right .status{display:none}.big{font-size:20px}.market{gap:14px}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="../">
+    <svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 50 L38 8 L38 50 Z" fill="#F0A63A"/><path d="M42 18 L50 50 L42 50 Z" fill="#F0A63A" opacity="0.55"/><line x1="10" y1="56" x2="54" y2="56" stroke="#F0A63A" stroke-width="4" stroke-linecap="round"/></svg>
+    Halyard
+  </a>
+  <nav>
+    <a href="./" class="on">Practice</a>
+    <a href="../learn/slides/">Guide</a>
+    <a href="../learn/">Learn</a>
+    <a href="../">About</a>
+  </nav>
+  <span class="right">
+    <button class="tour-btn" id="tour-btn">Show me around</button>
+    <span class="status"><span class="dot" id="feed-dot"></span> <span id="feed-status">connecting</span></span>
+    <span class="balance"><span id="balance">10,000.00</span> <span class="muted">PLAY</span></span>
+  </span>
+</header>
+
+<div class="market">
+  <span class="sym">BTC-PERP</span>
+  <span class="big" id="price">—</span>
+  <span class="stat"><span class="k">24h change</span><span class="v" id="change">—</span></span>
+  <span class="stat"><span class="k">24h high</span><span class="v" id="high">—</span></span>
+  <span class="stat"><span class="k">24h low</span><span class="v" id="low">—</span></span>
+  <span class="stat" title="The crowded side pays the other side, every hour"><span class="k">Funding · next in</span><span class="v"><span id="funding">—</span> <span class="muted" id="funding-clock">—</span></span></span>
+  <span class="tag">Practice · play money</span>
+</div>
+
+<main>
+  <div class="left">
+    <div class="card" id="chart-wrap">
+      <canvas id="chart"></canvas>
+      <div class="chart-tools">
+        <span class="chart-note" id="chart-note">BTC/USD · live</span>
+        <span class="tfs" id="tfs">
+          <button data-m="1" class="on">1m</button><button data-m="5">5m</button><button data-m="15">15m</button><button data-m="60">1h</button><button data-m="360">6h</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Your position</h2>
+      <div class="tablewrap">
+      <table>
+        <thead><tr><th>Market</th><th>Side</th><th>Size</th><th>Collateral</th><th>Entry</th><th>Liquidation</th><th>Profit / loss</th><th></th></tr></thead>
+        <tbody id="positions-body"><tr><td colspan="8" class="empty">Nothing open. Place an order and it fills in about ten seconds.</td></tr></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What happened</h2>
+      <div id="history"><div class="empty">Your trades will appear here.</div></div>
+      <button class="ghost" id="reset-btn" style="margin-top:10px">Start again with 10,000</button>
+    </div>
+  </div>
+
+  <div class="ladder-col">
+    <div class="card">
+      <h2>Long and short, side by side</h2>
+      <div class="ladder-head"><span>Long</span><span>Price</span><span>Short</span></div>
+      <div class="ladder" id="ladder"></div>
+      <div class="bookbar">
+        <div class="bookrow"><span>Long</span><span class="bar long"><span id="bk-long"></span></span><span id="bk-longv">—</span></div>
+        <div class="bookrow"><span>Short</span><span class="bar short"><span id="bk-short"></span></span><span id="bk-shortv">—</span></div>
+        <div class="bookrow"><span>Waiting</span><span class="bar wait"><span id="bk-wait"></span></span><span id="bk-waitv">—</span></div>
+      </div>
+      <div class="ladder-foot" id="ladder-foot">Profit or loss on the order you are setting up, at each price. One side&rsquo;s gain is the other side&rsquo;s loss.</div>
+    </div>
+  </div>
+
+  <div class="side-col">
+    <div class="card">
+      <h2>Open a position</h2>
+      <div class="side">
+        <button id="long-btn" aria-pressed="true">Long</button>
+        <button id="short-btn" class="short" aria-pressed="false">Short</button>
+      </div>
+
+      <label for="collateral">Collateral (play USDT)</label>
+      <input type="number" id="collateral" value="500" min="1" step="10">
+
+      <div class="pcts"><button data-p="0.25">25%</button><button data-p="0.5">50%</button><button data-p="0.75">75%</button><button data-p="1">Max</button></div>
+      <label for="leverage">Leverage · <span id="lev-label">2.0×</span></label>
+      <input type="range" id="leverage" min="1" max="5" step="1" value="2">
+
+      <label>Worst price you will accept</label>
+      <div class="bands" id="bands">
+        <button data-b="0.001">0.1%</button><button data-b="0.0025">0.25%</button><button data-b="0.005" class="on">0.5%</button>
+      </div>
+      <div class="band-note" id="band-note">The order fills at anything better than this, and does not fill at all past it.</div>
+
+      <div class="tpsl">
+        <div><label for="stop-loss">Stop-loss (optional)</label><input type="number" id="stop-loss" placeholder="price" step="1"></div>
+        <div><label for="take-profit">Take-profit (optional)</label><input type="number" id="take-profit" placeholder="price" step="1"></div>
+      </div>
+      <div id="sum-rows" style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">
+        <div class="row"><span class="muted">Position size</span><span id="sum-size">—</span></div>
+        <div class="row"><span class="muted">Liquidation price</span><span class="red" id="sum-liq">—</span></div>
+        <div class="row"><span class="muted">Worst price you accept</span><span id="sum-worst">—</span></div>
+        <div class="row"><span class="muted">Fee (0.06%)</span><span id="sum-fee">—</span></div>
+      </div>
+
+      <button class="primary" id="submit-btn">Open long</button>
+      <div class="note" id="order-note">Fills take about ten seconds, the same as settling on Trac. If the price passes your limit, nothing opens.</div>
+    </div>
+
+
+    <div class="card" id="pending-card" hidden>
+      <h2 id="pend-title">Filling…</h2>
+      <div class="row"><span class="muted" id="pend-left-k">Time left</span><span id="pend-left">—</span></div>
+      <div class="row"><span class="muted">Price when you pressed</span><span id="pend-price">—</span></div>
+      <div class="row"><span class="muted">Worst you accept</span><span class="amber" id="pend-worst">—</span></div>
+    </div>
+
+    <details class="fold">
+      <summary>Why there is no order book</summary>
+      <p>Most exchanges show a ladder of resting buy and sell orders. Halyard has none: your order is matched against a trader taking the opposite side, at the oracle price. That is why fills wait for the other side, why funding pulls the crowded side back, and why the insurance fund exists at all. In practice you are matched against simulated traders running in your own browser, so an order sometimes waits for the other side exactly as it will on the real thing.</p>
+    </details>
+  </div>
+</main>
+
+<footer>
+  Play money only: nothing here is a deposit and nothing can be won or lost. Practice prices come from Coinbase or Kraken; real trading uses Pyth prices with signatures checked on-chain by every Halyard node.<br>
+  Halyard is in development. Lessons and practice are open to everyone; real trading is not offered in the United States. A product by r2rlabs.
+</footer>
+
+<script type="module" src="./app.js?v=38"></script>
+</body>
+</html>
